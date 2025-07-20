@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:mime/mime.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,13 +11,14 @@ import 'package:archive/archive_io.dart';
 
 class FileService {
   // Request storage permissions
+  static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
+
   Future<bool> requestStoragePermission() async {
-    if (await Permission.manageExternalStorage.request().isGranted) {
-      return true;
-    } else if (await Permission.storage.request().isGranted) {
-      // Fallback for Android < 11
-      return true;
-    } else {
+    try {
+      final bool? result = await platform.invokeMethod('requestStoragePermission');
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get permission: '${e.message}'");
       return false;
     }
   }
