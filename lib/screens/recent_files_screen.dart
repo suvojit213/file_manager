@@ -32,7 +32,7 @@ class _RecentFilesScreenState extends State<RecentFilesScreen> {
     List<FileModel> allFiles = [];
     final paths = await _fileService.getStoragePaths();
     if (paths.isNotEmpty) {
-      await _fileService._listAllFilesRecursive(paths.first.path, allFiles);
+      await _fileService.listAllFilesRecursive(paths.first.path, allFiles);
     }
 
     allFiles.sort((a, b) => b.lastModified.compareTo(a.lastModified));

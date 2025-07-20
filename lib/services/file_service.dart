@@ -92,8 +92,13 @@ class FileService {
 
   Future<void> renameFile(String oldPath, String newPath) async {
     try {
-      final entity = FileSystemEntity.fromUri(Uri.file(oldPath));
-      await entity.rename(newPath);
+      if (await File(oldPath).exists()) {
+        await File(oldPath).rename(newPath);
+      } else if (await Directory(oldPath).exists()) {
+        await Directory(oldPath).rename(newPath);
+      } else {
+        debugPrint('Error renaming: $oldPath does not exist');
+      }
     } catch (e) {
       debugPrint('Error renaming file: $e');
     }
@@ -183,7 +188,7 @@ class FileService {
   }
 
   // Helper for recursive listing (used by findLargeFiles and CategoryScreen)
-  Future<void> _listAllFilesRecursive(String path, List<FileModel> fileList) async {
+  Future<void> listAllFilesRecursive(String path, List<FileModel> fileList) async {
     try {
       final directory = Directory(path);
       if (await directory.exists()) {

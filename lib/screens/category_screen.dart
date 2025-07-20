@@ -1,4 +1,5 @@
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
@@ -35,7 +36,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     if (paths.isNotEmpty) {
       // Recursively list files from the first storage path
       // This can be very slow for large storage, consider optimizing
-      await _listAllFilesRecursive(paths.first.path, allFiles);
+      await _fileService.listAllFilesRecursive(paths.first.path, allFiles);
     }
 
     Map<FileType, List<FileModel>> tempCategories = {
@@ -63,23 +64,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     });
   }
 
-  Future<void> _listAllFilesRecursive(String path, List<FileModel> fileList) async {
-    try {
-      final directory = Directory(path);
-      if (await directory.exists()) {
-        final entities = directory.listSync(recursive: false, followLinks: false);
-        for (var entity in entities) {
-          if (entity is File) {
-            fileList.add(FileModel.fromFileSystemEntity(entity));
-          } else if (entity is Directory) {
-            await _listAllFilesRecursive(entity.path, fileList);
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error listing files recursively: $e');
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
