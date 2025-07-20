@@ -17,6 +17,7 @@ import android.Manifest
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.flutter_file_manager/permissions"
+    private var pendingResult: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -47,6 +48,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun requestStoragePermission(result: MethodChannel.Result) {
+        pendingResult = result
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
@@ -61,27 +63,23 @@ class MainActivity : FlutterActivity() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 101
             )
+            // No direct result from here, rely on checkStoragePermission from Dart after activity resumes
         }
-        // Store the result object to send the result back after permission request
-        // This is a simplified approach. For a robust solution, consider using a callback manager.
-        // For now, we assume the permission dialog will be handled by the system and the checkStoragePermission
-        // will be called again from Dart after the activity resumes.
-        result.success(checkStoragePermission())
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100) {
-            // MANAGE_EXTERNAL_STORAGE permission result
-            // No direct result from here, rely on checkStoragePermission from Dart
+            pendingResult?.success(checkStoragePermission())
+            pendingResult = null
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 101) {
-            // READ/WRITE_EXTERNAL_STORAGE permission result
-            // No direct result from here, rely on checkStoragePermission from Dart
+            pendingResult?.success(checkStoragePermission())
+            pendingResult = null
         }
     }
 }
