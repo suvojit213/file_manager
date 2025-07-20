@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:mime/mime.dart';
 
 enum FileType {
   file,
@@ -70,29 +71,5 @@ class FileModel {
       lastModified: stat.modified,
       isHidden: isHidden,
     );
-  }
-}
-
-// Dummy lookupMimeType for now, will use 'mime' package later
-String? lookupMimeType(String path) {
-  // This is a placeholder. The actual implementation will use the 'mime' package.
-  // For now, a simple extension-based check.
-  final ext = path.split('.').last.toLowerCase();
-  switch (ext) {
-    case 'jpg':
-    case 'jpeg':
-      return 'image/jpeg';
-    case 'png':
-      return 'image/png';
-    case 'mp4':
-      return 'video/mp4';
-    case 'mp3':
-      return 'audio/mpeg';
-    case 'pdf':
-      return 'application/pdf';
-    case 'zip':
-      return 'application/zip';
-    default:
-      return null;
   }
 }
