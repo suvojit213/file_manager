@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:mime/mime.dart';
-import 'package:share_plus/share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
@@ -29,8 +29,10 @@ class FileService {
     List<Directory> paths = [];
     if (Platform.isAndroid) {
       final externalStoragePaths = await ExternalPath.getExternalStorageDirectories();
-      for (var path in externalStoragePaths) {
-        paths.add(Directory(path));
+      if (externalStoragePaths != null) {
+        for (var path in externalStoragePaths) {
+          paths.add(Directory(path));
+        }
       }
     } else if (Platform.isIOS) {
       final appDocDir = await getApplicationDocumentsDirectory();
