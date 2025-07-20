@@ -176,7 +176,7 @@ class FileService {
   Future<List<FileModel>> findLargeFiles(String path, {int minSizeKB = 1024}) async {
     List<FileModel> largeFiles = [];
     List<FileModel> allFiles = [];
-    await _listAllFilesRecursive(path, allFiles);
+    await listAllFilesRecursive(path, allFiles);
 
     for (var file in allFiles) {
       if (file.type == FileType.file && file.size >= minSizeKB * 1024) {
@@ -197,7 +197,7 @@ class FileService {
           if (entity is File) {
             fileList.add(FileModel.fromFileSystemEntity(entity));
           } else if (entity is Directory) {
-            await _listAllFilesRecursive(entity.path, fileList);
+            await listAllFilesRecursive(entity.path, fileList);
           }
         }
       }
