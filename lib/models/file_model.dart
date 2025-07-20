@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:mime/mime.dart';
+import 'package:path/path.dart' as p;
 
 enum FileType {
   file,
@@ -32,7 +33,7 @@ class FileModel {
 
   factory FileModel.fromFileSystemEntity(FileSystemEntity entity) {
     final stat = entity.statSync();
-    final isHidden = entity.uri.pathSegments.last.startsWith('.');
+    final isHidden = p.basename(entity.path).startsWith('.');
 
     FileType determineFileType(FileSystemEntity entity) {
       if (entity is Directory) {
@@ -64,7 +65,7 @@ class FileModel {
     }
 
     return FileModel(
-      name: entity.uri.pathSegments.last,
+      name: p.basename(entity.path),
       path: entity.path,
       type: determineFileType(entity),
       size: stat.size,
