@@ -5,9 +5,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:mime/mime.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:archive/archive_io.dart';
+import 'package:external_path/external_path.dart';
 
 class FileService {
   // Request storage permissions
@@ -27,13 +28,10 @@ class FileService {
   Future<List<Directory>> getStoragePaths() async {
     List<Directory> paths = [];
     if (Platform.isAndroid) {
-      final externalStorage = await getExternalStorageDirectories();
-      if (externalStorage != null) {
-        paths.addAll(externalStorage);
+      final externalStoragePaths = await ExternalPath.getExternalStorageDirectories();
+      for (var path in externalStoragePaths) {
+        paths.add(Directory(path));
       }
-      // Add more common paths if needed, e.g., Downloads, Documents
-      // This might require specific platform channels or well-known paths
-      // For simplicity, we'll stick to what path_provider gives directly for now.
     } else if (Platform.isIOS) {
       final appDocDir = await getApplicationDocumentsDirectory();
       paths.add(appDocDir);
