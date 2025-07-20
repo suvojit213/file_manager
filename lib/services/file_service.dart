@@ -49,6 +49,7 @@ class FileService {
       if (await directory.exists()) {
         final entities = directory.listSync(recursive: false, followLinks: false);
         for (var entity in entities) {
+          debugPrint('Processing entity: ${entity.path}');
           final fileModel = FileModel.fromFileSystemEntity(entity);
           if (!fileModel.isHidden || showHidden) {
             files.add(fileModel);
