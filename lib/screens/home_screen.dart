@@ -7,6 +7,7 @@ import 'package:flutter_file_manager/widgets/file_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_file_manager/screens/destination_selection_screen.dart';
 import 'package:flutter_file_manager/screens/file_details_screen.dart';
+import 'package:flutter_file_manager/screens/text_editor_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? initialPath;
@@ -434,6 +435,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => HomeScreen(initialPath: file.path),
                                 ),
                               );
+                            } else if (file.path.endsWith('.txt') ||
+                               file.path.endsWith('.md') ||
+                               file.path.endsWith('.json') ||
+                               file.path.endsWith('.xml') ||
+                               file.path.endsWith('.log') ||
+                               file.path.endsWith('.csv') ||
+                               file.path.endsWith('.dart') ||
+                               file.path.endsWith('.yaml') ||
+                               file.path.endsWith('.kts') ||
+                               file.path.endsWith('.gradle') ||
+                               file.path.endsWith('.properties') ||
+                               file.path.endsWith('.swift') ||
+                               file.path.endsWith('.h') ||
+                               file.path.endsWith('.m') ||
+                               file.path.endsWith('.c') ||
+                               file.path.endsWith('.cpp') ||
+                               file.path.endsWith('.java') ||
+                               file.path.endsWith('.js') ||
+                               file.path.endsWith('.ts') ||
+                               file.path.endsWith('.html') ||
+                               file.path.endsWith('.css') ||
+                               file.path.endsWith('.py') ||
+                               file.path.endsWith('.sh') ||
+                               file.path.endsWith('.bat') ||
+                               file.path.endsWith('.ps1')) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TextEditorScreen(file: file),
+                                ),
+                              );
                             } else {
                               _fileService.openFile(file.path);
                             }
@@ -473,6 +505,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => HomeScreen(initialPath: file.path),
+                                ),
+                              );
+                            } else if (file.path.endsWith('.txt') ||
+                               file.path.endsWith('.md') ||
+                               file.path.endsWith('.json') ||
+                               file.path.endsWith('.xml') ||
+                               file.path.endsWith('.log') ||
+                               file.path.endsWith('.csv') ||
+                               file.path.endsWith('.dart') ||
+                               file.path.endsWith('.yaml') ||
+                               file.path.endsWith('.kts') ||
+                               file.path.endsWith('.gradle') ||
+                               file.path.endsWith('.properties') ||
+                               file.path.endsWith('.swift') ||
+                               file.path.endsWith('.h') ||
+                               file.path.endsWith('.m') ||
+                               file.path.endsWith('.c') ||
+                               file.path.endsWith('.cpp') ||
+                               file.path.endsWith('.java') ||
+                               file.path.endsWith('.js') ||
+                               file.path.endsWith('.ts') ||
+                               file.path.endsWith('.html') ||
+                               file.path.endsWith('.css') ||
+                               file.path.endsWith('.py') ||
+                               file.path.endsWith('.sh') ||
+                               file.path.endsWith('.bat') ||
+                               file.path.endsWith('.ps1')) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TextEditorScreen(file: file),
                                 ),
                               );
                             } else {
