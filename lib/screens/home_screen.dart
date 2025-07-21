@@ -458,24 +458,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: [
                 
                 
-                // Internal storage selector
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: DropdownButton<String>(
-                    value: _currentPath,
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        _loadFiles(newValue);
-                      }
-                    },
-                    items: _storagePaths.map<DropdownMenuItem<String>>((Directory path) {
-                      return DropdownMenuItem<String>(
-                        value: path.path,
-                        child: Text(path.path.contains('emulated/0') ? 'Internal Storage' : 'SD Card'),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                
                 
                 
                 // File list/grid

@@ -78,24 +78,7 @@ class _StorageChartScreenState extends State<StorageChartScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Search bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey[800]
-                          : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  
                   
                   // Storage info
                   Container(
