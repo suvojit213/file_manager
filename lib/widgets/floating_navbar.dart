@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/screens/vault_screen.dart';
 import 'package:flutter_file_manager/screens/settings_screen.dart';
 import 'package:flutter_file_manager/screens/category_screen.dart';
+import 'package:flutter_file_manager/screens/recycle_bin_screen.dart';
 
 class FloatingNavBar extends StatelessWidget {
   const FloatingNavBar({super.key});
