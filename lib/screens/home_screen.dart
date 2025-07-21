@@ -9,7 +9,8 @@ import 'package:flutter_file_manager/screens/destination_selection_screen.dart';
 import 'package:flutter_file_manager/screens/file_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? initialPath;
+  const HomeScreen({super.key, this.initialPath});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,7 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _requestPermissionsAndLoadFiles();
+    if (widget.initialPath != null) {
+      _currentPath = widget.initialPath!;
+      _loadFiles(_currentPath);
+    } else {
+      _requestPermissionsAndLoadFiles();
+    }
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -64,9 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (granted) {
       final paths = await _fileService.getStoragePaths();
       if (paths.isNotEmpty) {
-        setState(() {
-          _currentPath = paths.first.path;
-        });
+        if (_currentPath.isEmpty) { // Only set if not already set by initialPath
+          setState(() {
+            _currentPath = paths.first.path;
+          });
+        }
         _loadFiles(_currentPath);
       } else {
         setState(() {
@@ -420,7 +428,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         return GestureDetector(
                           onTap: () {
                             if (file.type == FileType.directory) {
-                              _loadFiles(file.path);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomeScreen(initialPath: file.path),
+                                ),
+                              );
                             } else {
                               _fileService.openFile(file.path);
                             }
@@ -456,7 +469,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           file: file,
                           onTap: () {
                             if (file.type == FileType.directory) {
-                              _loadFiles(file.path);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomeScreen(initialPath: file.path),
+                                ),
+                              );
                             } else {
                               _fileService.openFile(file.path);
                             }

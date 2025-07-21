@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter File Manager',
       theme: themeNotifier.currentTheme,
-      home: const HomeScreen(),
+      home: const HomeScreen(initialPath: null),
       debugShowCheckedModeBanner: false,
     );
   }
