@@ -57,33 +57,82 @@ class AppThemes {
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     primarySwatch: Colors.blue,
+    scaffoldBackgroundColor: Colors.white,
+    cardColor: Colors.white,
     appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+      backgroundColor: Colors.white,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      elevation: 8,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonTheme(
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),
-    // Add more light theme properties
   );
 
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.blueGrey,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.blueGrey,
-      foregroundColor: Colors.white,
-    ),
-    // Add more dark theme properties
-  );
-
-  static final ThemeData amoledBlackTheme = ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: Colors.grey,
+    primarySwatch: Colors.blue,
     scaffoldBackgroundColor: Colors.black,
     cardColor: Colors.grey[900],
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
-    // Add more AMOLED black theme properties
+    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+      backgroundColor: Colors.black,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      elevation: 8,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonTheme(
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+    ),
+  );
+
+  static final ThemeData amoledBlackTheme = ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.blue,
+    scaffoldBackgroundColor: Colors.black,
+    cardColor: Colors.grey[900],
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+      backgroundColor: Colors.black,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      elevation: 8,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonTheme(
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+    ),
   );
 
   static String formatBytes(int bytes) {

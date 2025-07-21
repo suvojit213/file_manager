@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_file_manager/screens/home_screen.dart';
+import 'package:flutter_file_manager/screens/main_screen.dart';
 import 'package:flutter_file_manager/utils/app_theme.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
 import 'package:flutter_file_manager/services/vault_service.dart';
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter File Manager',
       theme: themeNotifier.currentTheme,
-      home: const HomeScreen(initialPath: null),
+      home: const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

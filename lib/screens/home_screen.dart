@@ -407,33 +407,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 decoration: const InputDecoration(
                   hintText: 'Search files...',
                   border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: TextStyle(color: Colors.grey),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18.0),
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                  fontSize: 18.0,
+                ),
                 autofocus: true,
               )
-            : _storagePaths.isNotEmpty
-                ? DropdownButton<String>(
-                    value: _currentPath,
-                    dropdownColor: Theme.of(context).appBarTheme.backgroundColor,
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    underline: const SizedBox(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        _loadFiles(newValue);
-                      }
-                    },
-                    items: _storagePaths.map<DropdownMenuItem<String>>((Directory dir) {
-                      return DropdownMenuItem<String>(
-                        value: dir.path,
-                        child: Text(
-                          dir.path == '/storage/emulated/0' ? 'Internal Storage' : dir.path.split('/').last,
-                          style: const TextStyle(color: Colors.white, fontSize: 18.0),
-                        ),
-                      );
-                    }).toList(),
-                  )
-                : Text(_currentPath.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
+            : const Text('Files'),
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
@@ -463,188 +445,240 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               });
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
         ],
       ),
       drawer: const SideBarMenu(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _filteredFiles.isEmpty
-              ? const Center(child: Text('No files or folders found.'))
-              : _isGridView
-                  ? RefreshIndicator(
-                      onRefresh: () => _loadFiles(_currentPath),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3, // Adjust as needed
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
+          : Column(
+              children: [
+                // Search bar
+                Container(
+                  margin: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[800]
+                        : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+                
+                // Internal storage selector
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
-                        itemCount: _filteredFiles.length,
-                        itemBuilder: (context, index) {
-                          final file = _filteredFiles[index];
-                          return GestureDetector(
-                            onTap: () {
-                              if (file.type == FileType.directory) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(initialPath: file.path),
-                                  ),
-                                );
-                              } else if (file.type == FileType.image) {
-                                final imagePaths = _filteredFiles
-                                    .where((f) => f.type == FileType.image)
-                                    .map((f) => f.path)
-                                    .toList();
-                                final initialIndex = imagePaths.indexOf(file.path);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ImageViewerScreen(
-                                      imagePaths: imagePaths,
-                                      initialIndex: initialIndex,
+                        child: const Text('Internal'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // File list/grid
+                Expanded(
+                  child: _filteredFiles.isEmpty
+                      ? const Center(child: Text('No files or folders found.'))
+                      : _isGridView
+                          ? RefreshIndicator(
+                              onRefresh: () => _loadFiles(_currentPath),
+                              child: GridView.builder(
+                                padding: const EdgeInsets.all(16.0),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 16.0,
+                                  mainAxisSpacing: 16.0,
+                                  childAspectRatio: 0.8,
+                                ),
+                                itemCount: _filteredFiles.length,
+                                itemBuilder: (context, index) {
+                                  final file = _filteredFiles[index];
+                                  return GestureDetector(
+                                    onTap: () => _handleFileTap(file),
+                                    onLongPress: () => _showFileOptions(file),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: _getFolderColor(file.type),
+                                              borderRadius: BorderRadius.circular(12.0),
+                                            ),
+                                            child: Icon(
+                                              _fileTileIcon(file.type),
+                                              size: 48.0,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          file.name,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        if (file.type == FileType.directory)
+                                          Text(
+                                            _getFileInfo(file),
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                                  ),
-                                );
-                              } else if (file.path.endsWith('.txt') ||
-                                 file.path.endsWith('.md') ||
-                                 file.path.endsWith('.json') ||
-                                 file.path.endsWith('.xml') ||
-                                 file.path.endsWith('.log') ||
-                                 file.path.endsWith('.csv') ||
-                                 file.path.endsWith('.dart') ||
-                                 file.path.endsWith('.yaml') ||
-                                 file.path.endsWith('.kts') ||
-                                 file.path.endsWith('.gradle') ||
-                                 file.path.endsWith('.properties') ||
-                                 file.path.endsWith('.swift') ||
-                                 file.path.endsWith('.h') ||
-                                 file.path.endsWith('.m') ||
-                                 file.path.endsWith('.c') ||
-                                 file.path.endsWith('.cpp') ||
-                                 file.path.endsWith('.java') ||
-                                 file.path.endsWith('.js') ||
-                                 file.path.endsWith('.ts') ||
-                                 file.path.endsWith('.html') ||
-                                 file.path.endsWith('.css') ||
-                                 file.path.endsWith('.py') ||
-                                 file.path.endsWith('.sh') ||
-                                 file.path.endsWith('.bat') ||
-                                 file.path.endsWith('.ps1')) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TextEditorScreen(file: file),
-                                  ),
-                                );
-                              } else {
-                                _fileService.openFile(file.path);
-                              }
-                            },
-                            onLongPress: () {
-                              _showFileOptions(file);
-                            },
-                            child: Card(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    _fileTileIcon(file.type), // Helper function for icon
-                                    size: 48.0,
-                                  ),
-                                  Text(
-                                    file.name,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                                  );
+                                },
+                              ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: () => _loadFiles(_currentPath),
+                              child: ListView.builder(
+                                itemCount: _filteredFiles.length,
+                                itemBuilder: (context, index) {
+                                  final file = _filteredFiles[index];
+                                  return ListTile(
+                                    leading: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: _getFolderColor(file.type),
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Icon(
+                                        _fileTileIcon(file.type),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    title: Text(file.name),
+                                    subtitle: Text(_getFileInfo(file)),
+                                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                    onTap: () => _handleFileTap(file),
+                                    onLongPress: () => _showFileOptions(file),
+                                  );
+                                },
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () => _loadFiles(_currentPath),
-                      child: ListView.builder(
-                        itemCount: _filteredFiles.length,
-                        itemBuilder: (context, index) {
-                          final file = _filteredFiles[index];
-                          return FileTile(
-                            file: file,
-                            onTap: () {
-                              if (file.type == FileType.directory) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(initialPath: file.path),
-                                  ),
-                                );
-                              } else if (file.type == FileType.image) {
-                                final imagePaths = _filteredFiles
-                                    .where((f) => f.type == FileType.image)
-                                    .map((f) => f.path)
-                                    .toList();
-                                final initialIndex = imagePaths.indexOf(file.path);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ImageViewerScreen(
-                                      imagePaths: imagePaths,
-                                      initialIndex: initialIndex,
-                                    ),
-                                  ),
-                                );
-                              } else if (file.path.endsWith('.txt') ||
-                                 file.path.endsWith('.md') ||
-                                 file.path.endsWith('.json') ||
-                                 file.path.endsWith('.xml') ||
-                                 file.path.endsWith('.log') ||
-                                 file.path.endsWith('.csv') ||
-                                 file.path.endsWith('.dart') ||
-                                 file.path.endsWith('.yaml') ||
-                                 file.path.endsWith('.kts') ||
-                                 file.path.endsWith('.gradle') ||
-                                 file.path.endsWith('.properties') ||
-                                 file.path.endsWith('.swift') ||
-                                 file.path.endsWith('.h') ||
-                                 file.path.endsWith('.m') ||
-                                 file.path.endsWith('.c') ||
-                                 file.path.endsWith('.cpp') ||
-                                 file.path.endsWith('.java') ||
-                                 file.path.endsWith('.js') ||
-                                 file.path.endsWith('.ts') ||
-                                 file.path.endsWith('.html') ||
-                                 file.path.endsWith('.css') ||
-                                 file.path.endsWith('.py') ||
-                                 file.path.endsWith('.sh') ||
-                                 file.path.endsWith('.bat') ||
-                                 file.path.endsWith('.ps1')) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TextEditorScreen(file: file),
-                                  ),
-                                );
-                              } else {
-                                _fileService.openFile(file.path);
-                              }
-                            },
-                            onLongPress: () {
-                              _showFileOptions(file);
-                            },
-                          );
-                        },
-                      ),
-                    ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showCreateFolderDialog();
         },
-        child: const Icon(Icons.create_new_folder),
+        child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _handleFileTap(FileModel file) {
+    if (file.type == FileType.directory) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(initialPath: file.path),
+        ),
+      );
+    } else if (file.type == FileType.image) {
+      final imagePaths = _filteredFiles
+          .where((f) => f.type == FileType.image)
+          .map((f) => f.path)
+          .toList();
+      final initialIndex = imagePaths.indexOf(file.path);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageViewerScreen(
+            imagePaths: imagePaths,
+            initialIndex: initialIndex,
+          ),
+        ),
+      );
+    } else if (file.path.endsWith('.txt') ||
+       file.path.endsWith('.md') ||
+       file.path.endsWith('.json') ||
+       file.path.endsWith('.xml') ||
+       file.path.endsWith('.log') ||
+       file.path.endsWith('.csv') ||
+       file.path.endsWith('.dart') ||
+       file.path.endsWith('.yaml') ||
+       file.path.endsWith('.kts') ||
+       file.path.endsWith('.gradle') ||
+       file.path.endsWith('.properties') ||
+       file.path.endsWith('.swift') ||
+       file.path.endsWith('.h') ||
+       file.path.endsWith('.m') ||
+       file.path.endsWith('.c') ||
+       file.path.endsWith('.cpp') ||
+       file.path.endsWith('.java') ||
+       file.path.endsWith('.js') ||
+       file.path.endsWith('.ts') ||
+       file.path.endsWith('.html') ||
+       file.path.endsWith('.css') ||
+       file.path.endsWith('.py') ||
+       file.path.endsWith('.sh') ||
+       file.path.endsWith('.bat') ||
+       file.path.endsWith('.ps1')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TextEditorScreen(file: file),
+        ),
+      );
+    } else {
+      _fileService.openFile(file.path);
+    }
+  }
+
+  Color _getFolderColor(FileType type) {
+    switch (type) {
+      case FileType.directory:
+        return const Color(0xFF81C784); // Light green
+      case FileType.image:
+        return Colors.orange;
+      case FileType.video:
+        return Colors.yellow[700]!;
+      case FileType.audio:
+        return Colors.green;
+      case FileType.document:
+        return Colors.blue;
+      case FileType.archive:
+        return Colors.blue[700]!;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getFileInfo(FileModel file) {
+    // Mock data for demonstration - in real app, you'd get actual file count/size
+    if (file.type == FileType.directory) {
+      final random = DateTime.now().millisecondsSinceEpoch % 20;
+      return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')} – $random items';
+    }
+    return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')}';
   }
 
   IconData _fileTileIcon(FileType type) {
