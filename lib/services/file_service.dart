@@ -55,9 +55,10 @@ class FileService {
             files.add(fileModel);
           }
         }
-      } catch (e) {
-        debugPrint('Error listing files: $e');
       }
+    } catch (e) {
+      debugPrint('Error listing files: $e');
+    }
     return files;
   }
 
