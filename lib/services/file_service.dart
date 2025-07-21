@@ -10,7 +10,10 @@ import 'package:open_filex/open_filex.dart';
 import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
 
+import 'package:flutter_file_manager/services/recycle_bin_service.dart';
+
 class FileService {
+  final RecycleBinService _recycleBinService = RecycleBinService();
   // Request storage permissions
   static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
 
@@ -83,12 +86,9 @@ class FileService {
 
   Future<void> deleteFile(String path) async {
     try {
-      final file = File(path);
-      if (await file.exists()) {
-        await file.delete();
-      }
+      await _recycleBinService.moveToRecycleBin(path);
     } catch (e) {
-      debugPrint('Error deleting file: $e');
+      debugPrint('Error moving file to recycle bin: $e');
     }
   }
 
