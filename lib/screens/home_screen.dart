@@ -479,17 +479,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 // Internal storage selector
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: const Text('Internal'),
-                      ),
-                    ],
+                  child: DropdownButton<String>(
+                    value: _currentPath,
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        _loadFiles(newValue);
+                      }
+                    },
+                    items: _storagePaths.map<DropdownMenuItem<String>>((Directory path) {
+                      return DropdownMenuItem<String>(
+                        value: path.path,
+                        child: Text(path.path.contains('emulated/0') ? 'Internal Storage' : 'SD Card'),
+                      );
+                    }).toList(),
                   ),
                 ),
                 const SizedBox(height: 16),
