@@ -16,10 +16,12 @@ import io.flutter.plugin.common.MethodChannel
 import android.Manifest
 import android.os.StatFs
 import java.io.File
+import androidx.core.content.FileProvider
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.flutter_file_manager/permissions"
     private val DISK_SPACE_CHANNEL = "com.example.flutter_file_manager/disk_space"
+    private val APK_INSTALL_CHANNEL = "com.example.flutter_file_manager/apk_install"
     private var pendingResult: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -55,6 +57,21 @@ class MainActivity : FlutterActivity() {
                 resultMap["totalSpace"] = totalSpace
                 resultMap["freeSpace"] = freeSpace
                 result.success(resultMap)
+            } else {
+                result.notImplemented()
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, APK_INSTALL_CHANNEL).setMethodCallHandler {
+            call, result ->
+            if (call.method == "installApk") {
+                val filePath = call.argument<String>("filePath")
+                if (filePath != null) {
+                    installApk(filePath)
+                    result.success(null)
+                } else {
+                    result.error("INVALID_ARGUMENT", "File path is null", null)
+                }
             } else {
                 result.notImplemented()
             }
@@ -104,6 +121,21 @@ class MainActivity : FlutterActivity() {
         if (requestCode == 101) {
             pendingResult?.success(checkStoragePermission())
             pendingResult = null
+        }
+    }
+
+    private fun installApk(filePath: String) {
+        val file = File(filePath)
+        if (file.exists()) {
+            val uri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.provider", file)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        } else {
+            // Handle file not found
         }
     }
 }

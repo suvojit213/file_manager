@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_file_manager/utils/app_theme.dart';
@@ -15,6 +16,16 @@ class FileTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
   });
+
+  static const apkInstallChannel = MethodChannel('com.example.flutter_file_manager/apk_install');
+
+  Future<void> _installApk(String filePath) async {
+    try {
+      await apkInstallChannel.invokeMethod('installApk', {'filePath': filePath});
+    } on PlatformException catch (e) {
+      print("Failed to install APK: '${e.message}'.");
+    }
+  }
 
   IconData _getIconForFileType(FileType type) {
     switch (type) {
@@ -45,7 +56,13 @@ class FileTile extends StatelessWidget {
       subtitle: Text(
         '${file.type == FileType.directory ? 'Folder' : AppThemes.formatBytes(file.size)} • ${DateFormat('yyyy-MM-dd HH:mm').format(file.lastModified)}',
       ),
-      onTap: onTap,
+            onTap: () {
+        if (file.path.toLowerCase().endsWith('.apk')) {
+          _installApk(file.path);
+        } else if (onTap != null) {
+          onTap!();
+        }
+      },
       onLongPress: onLongPress,
     );
   }
