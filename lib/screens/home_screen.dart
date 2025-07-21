@@ -88,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadFiles(String path) async {
-    debugPrint('Loading files for path: $path');
     setState(() {
       _isLoading = true;
       _currentPath = path;
