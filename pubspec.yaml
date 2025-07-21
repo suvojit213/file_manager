@@ -26,6 +26,7 @@ dependencies:
   local_auth: ^2.2.0 # For biometric authentication
   flutter_secure_storage: ^9.0.0 # For secure storage of PIN/biometric data
   path: ^1.9.0 # For path manipulation
+  shared_preferences: ^2.0.15 # For theme persistence
   
   # For Material 3 icons, if needed beyond default Material Icons
   # material_design_icons_flutter: ^7.0.7296
