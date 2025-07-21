@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
+import 'package:disk_space/disk_space.dart';
 
 import 'package:flutter_file_manager/services/recycle_bin_service.dart';
 
@@ -226,5 +227,13 @@ class FileService {
       print('Error writing file: $e');
       // Handle error appropriately
     }
+  }
+
+  Future<double> getTotalSpace(String path) async {
+    return await DiskSpace.getTotalDiskSpace ?? 0;
+  }
+
+  Future<double> getFreeSpace(String path) async {
+    return await DiskSpace.getFreeDiskSpace ?? 0;
   }
 }

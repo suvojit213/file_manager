@@ -27,6 +27,10 @@ dependencies:
   flutter_secure_storage: ^9.0.0 # For secure storage of PIN/biometric data
   path: ^1.9.0 # For path manipulation
   shared_preferences: ^2.0.15 # For theme persistence
+  fl_chart: ^0.63.0
+  disk_space: ^0.2.1
+  flutter_highlight: ^0.7.0
+  google_fonts: ^6.2.1
   
   # For Material 3 icons, if needed beyond default Material Icons
   # material_design_icons_flutter: ^7.0.7296
