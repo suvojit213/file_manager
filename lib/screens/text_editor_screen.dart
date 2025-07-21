@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/github.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:path/path.dart' as p;
 
 class TextEditorScreen extends StatefulWidget {
   final FileModel file;
@@ -56,6 +60,7 @@ class _TextEditorScreenState extends State<TextEditorScreen> {
 
   void _onContentChanged() {
     setState(() {
+      _fileContent = _controller.text;
       _hasChanges = _controller.text != _initialContent;
     });
   }
@@ -78,8 +83,37 @@ class _TextEditorScreenState extends State<TextEditorScreen> {
     }
   }
 
+  String _getLanguage() {
+    final extension = p.extension(widget.file.path).toLowerCase();
+    switch (extension) {
+      case '.dart':
+        return 'dart';
+      case '.java':
+        return 'java';
+      case '.py':
+        return 'python';
+      case '.js':
+        return 'javascript';
+      case '.ts':
+        return 'typescript';
+      case '.html':
+        return 'html';
+      case '.css':
+        return 'css';
+      case '.json':
+        return 'json';
+      case '.xml':
+        return 'xml';
+      case '.md':
+        return 'markdown';
+      default:
+        return 'plaintext';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final textStyle = GoogleFonts.firaMono();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.file.name),
@@ -93,18 +127,27 @@ class _TextEditorScreenState extends State<TextEditorScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _controller,
-                expands: true,
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Start typing...',
+          : Stack(
+              children: [
+                HighlightView(
+                  _fileContent,
+                  language: _getLanguage(),
+                  theme: githubTheme,
+                  padding: const EdgeInsets.all(12),
+                  textStyle: textStyle,
                 ),
-              ),
+                TextField(
+                  controller: _controller,
+                  expands: true,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  style: textStyle.copyWith(color: Colors.transparent),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(12),
+                  ),
+                ),
+              ],
             ),
     );
   }
