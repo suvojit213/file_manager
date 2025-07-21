@@ -129,22 +129,26 @@ class _TextEditorScreenState extends State<TextEditorScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                HighlightView(
-                  _fileContent,
-                  language: _getLanguage(),
-                  theme: githubTheme,
-                  padding: const EdgeInsets.all(12),
-                  textStyle: textStyle,
+                SingleChildScrollView(
+                  child: HighlightView(
+                    _fileContent,
+                    language: _getLanguage(),
+                    theme: githubTheme,
+                    padding: const EdgeInsets.all(12),
+                    textStyle: textStyle,
+                  ),
                 ),
-                TextField(
-                  controller: _controller,
-                  expands: true,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  style: textStyle.copyWith(color: Colors.transparent),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(12),
+                SingleChildScrollView(
+                  child: TextField(
+                    controller: _controller,
+                    expands: true,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    style: textStyle.copyWith(color: Colors.transparent),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
                   ),
                 ),
               ],
