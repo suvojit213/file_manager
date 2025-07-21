@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'dart:math' as Math;
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode {
@@ -84,4 +85,11 @@ class AppThemes {
     ),
     // Add more AMOLED black theme properties
   );
+
+  static String formatBytes(int bytes) {
+    if (bytes <= 0) return "0 B";
+    const suffixes = ["B", "KB", "MB", "GB", "TB"];
+    int i = (bytes > 0 ? (Math.log(bytes) / Math.log(1024)) : 0).floor();
+    return '${(bytes / Math.pow(1024, i)).toStringAsFixed(2)} ${suffixes[i]}';
+  }
 }
