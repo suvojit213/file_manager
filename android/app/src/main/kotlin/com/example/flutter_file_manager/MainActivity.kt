@@ -14,12 +14,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.Manifest
-
-class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.flutter_file_manager/permissions"
-    private var pendingResult: MethodChannel.Result? = null
-
-    import android.os.StatFs
+import android.os.StatFs
 import java.io.File
 
 class MainActivity : FlutterActivity() {
