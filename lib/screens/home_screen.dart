@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showHidden = false;
   bool _isSearching = false;
   bool _isGridView = false; // New state for grid/list view
+  List<Directory> _storagePaths = []; // New state for storing available storage paths
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -71,11 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (granted) {
       final paths = await _fileService.getStoragePaths();
       if (paths.isNotEmpty) {
-        if (_currentPath.isEmpty) { // Only set if not already set by initialPath
-          setState(() {
+        setState(() {
+          _storagePaths = paths;
+          if (_currentPath.isEmpty) { // Only set if not already set by initialPath
             _currentPath = paths.first.path;
-          });
-        }
+          }
+        });
         _loadFiles(_currentPath);
       } else {
         setState(() {
@@ -380,7 +382,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(color: Colors.white, fontSize: 18.0),
                 autofocus: true,
               )
-            : Text(_currentPath.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
+            : _storagePaths.isNotEmpty
+                ? DropdownButton<String>(
+                    value: _currentPath,
+                    dropdownColor: Theme.of(context).appBarTheme.backgroundColor,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    underline: const SizedBox(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        _loadFiles(newValue);
+                      }
+                    },
+                    items: _storagePaths.map<DropdownMenuItem<String>>((Directory dir) {
+                      return DropdownMenuItem<String>(
+                        value: dir.path,
+                        child: Text(
+                          dir.path == '/storage/emulated/0' ? 'Internal Storage' : dir.path.split('/').last,
+                          style: const TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                : Text(_currentPath.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
