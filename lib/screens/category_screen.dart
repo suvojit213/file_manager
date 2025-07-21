@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
@@ -34,9 +35,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
     List<FileModel> allFiles = [];
     final paths = await _fileService.getStoragePaths();
     if (paths.isNotEmpty) {
-      // Recursively list files from the first storage path
-      // This can be very slow for large storage, consider optimizing
-      await _fileService.listAllFilesRecursive(paths.first.path, allFiles);
+      // Use Isolate to run heavy computation in the background
+      allFiles = await Isolate.run(() => FileService.listAllFilesRecursiveStatic(paths.first.path));
     }
 
     Map<FileType, List<FileModel>> tempCategories = {

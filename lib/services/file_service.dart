@@ -54,8 +54,7 @@ class FileService {
       if (await directory.exists()) {
         debugPrint('Directory exists: $path');
         final recycledPaths = await _recycleBinService.getRecycledFileOriginalPaths();
-        final entities = directory.listSync(recursive: false, followLinks: false);
-        for (var entity in entities) {
+        await for (var entity in directory.list(recursive: false, followLinks: false)) {
           // Check if the entity's path is in the recycledPaths list
           if (!recycledPaths.contains(entity.path)) {
             final fileModel = FileModel.fromFileSystemEntity(entity);
@@ -162,7 +161,7 @@ class FileService {
 
   Future<void> unzipFile(String zipPath, String outputPath) async {
     try {
-      final bytes = File(zipPath).readAsBytesSync();
+      final bytes = await File(zipPath).readAsBytes();
       final archive = ZipDecoder().decodeBytes(bytes);
 
       for (var file in archive) {
@@ -200,8 +199,7 @@ class FileService {
     try {
       final directory = Directory(path);
       if (await directory.exists()) {
-        final entities = directory.listSync(recursive: false, followLinks: false);
-        for (var entity in entities) {
+        await for (var entity in directory.list(recursive: false, followLinks: false)) {
           if (entity is File) {
             fileList.add(FileModel.fromFileSystemEntity(entity));
           } else if (entity is Directory) {
@@ -268,14 +266,14 @@ class FileService {
     try {
       final entity = FileSystemEntity.typeSync(path);
       if (entity == FileSystemEntityType.file) {
-        return File(path).lengthSync();
+        return await File(path).length();
       } else if (entity == FileSystemEntityType.directory) {
         int totalSize = 0;
         final directory = Directory(path);
         if (await directory.exists()) {
           await for (var entity in directory.list(recursive: true, followLinks: false)) {
             if (entity is File) {
-              totalSize += entity.lengthSync();
+              totalSize += await entity.length();
             }
           }
         }
@@ -298,5 +296,25 @@ class FileService {
     } catch (e) {
       debugPrint('Error permanently deleting: $e');
     }
+  }
+
+  static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
+    List<FileModel> fileList = [];
+    try {
+      final directory = Directory(path);
+      if (await directory.exists()) {
+        await for (var entity in directory.list(recursive: true, followLinks: false)) {
+          if (entity is File) {
+            fileList.add(FileModel.fromFileSystemEntity(entity));
+          } else if (entity is Directory) {
+            // Recursively add files from subdirectories
+            fileList.addAll(await listAllFilesRecursiveStatic(entity.path));
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error listing files recursively in isolate: $e');
+    }
+    return fileList;
   }
 }

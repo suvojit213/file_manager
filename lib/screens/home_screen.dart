@@ -135,8 +135,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             TextButton(
               child: const Text('Rename'),
@@ -172,8 +172,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           content: Text(contentMessage),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             TextButton(
               child: const Text('Delete'),
@@ -212,8 +212,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             TextButton(
               child: const Text('Create'),
@@ -243,8 +243,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             TextButton(
               child: const Text('Zip'),
@@ -274,8 +274,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             TextButton(
               child: const Text('Unzip'),
@@ -445,9 +445,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               });
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
+          const IconButton( // Added const
+            icon: Icon(Icons.more_vert),
+            onPressed: null, // Changed to null as it was an empty function
           ),
         ],
       ),
