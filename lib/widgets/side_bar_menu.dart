@@ -4,6 +4,7 @@ import 'package:flutter_file_manager/screens/category_screen.dart';
 import 'package:flutter_file_manager/screens/recycle_bin_screen.dart';
 import 'package:flutter_file_manager/screens/settings_screen.dart';
 import 'package:flutter_file_manager/screens/vault_screen.dart';
+import 'package:flutter_file_manager/screens/storage_chart_screen.dart';
 
 class SideBarMenu extends StatelessWidget {
   const SideBarMenu({super.key});
@@ -52,6 +53,13 @@ class SideBarMenu extends StatelessWidget {
             title: const Text('Categories'),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryScreen()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.data_usage),
+            title: const Text('Storage Usage'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const StorageChartScreen()));
             },
           ),
           ListTile(

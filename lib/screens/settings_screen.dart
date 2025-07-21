@@ -68,12 +68,6 @@ class SettingsScreen extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const LargeFilesScreen()));
             },
           ),
-          ListTile(
-            title: const Text('Storage Usage'),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const StorageChartScreen()));
-            },
-          ),
           // Add more settings options here
         ],
       ),
