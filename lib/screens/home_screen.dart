@@ -403,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }).toList(),
                   )
-                : Text(_currentIspth.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
+                : Text(_currentPath.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
