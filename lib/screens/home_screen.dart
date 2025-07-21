@@ -456,25 +456,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Search bar
-                Container(
-                  margin: const EdgeInsets.all(16.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey[800]
-                        : Colors.grey[200],
-                    borderRadius: BorderRadius.circular(25.0),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      border: InputBorder.none,
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
+                
                 
                 // Internal storage selector
                 Container(
@@ -494,7 +476,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                
                 
                 // File list/grid
                 Expanded(
