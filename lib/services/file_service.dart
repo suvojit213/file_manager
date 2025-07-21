@@ -53,11 +53,15 @@ class FileService {
       final directory = Directory(path);
       if (await directory.exists()) {
         debugPrint('Directory exists: $path');
+        final recycledPaths = await _recycleBinService.getRecycledFileOriginalPaths();
         final entities = directory.listSync(recursive: false, followLinks: false);
         for (var entity in entities) {
-          final fileModel = FileModel.fromFileSystemEntity(entity);
-          if (!fileModel.isHidden || showHidden) {
-            files.add(fileModel);
+          // Check if the entity's path is in the recycledPaths list
+          if (!recycledPaths.contains(entity.path)) {
+            final fileModel = FileModel.fromFileSystemEntity(entity);
+            if (!fileModel.isHidden || showHidden) {
+              files.add(fileModel);
+            }
           }
         }
       }

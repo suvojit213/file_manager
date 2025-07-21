@@ -74,4 +74,27 @@ class RecycleBinService {
     }
     return [];
   }
+
+  Future<List<String>> getRecycledFileOriginalPaths() async {
+    final recycleBinPath = await _getRecycleBinPath();
+    final directory = Directory(recycleBinPath);
+    List<String> originalPaths = [];
+
+    if (await directory.exists()) {
+      await for (var entity in directory.list(recursive: false, followLinks: false)) {
+        if (entity is File && entity.path.endsWith('.json')) {
+          try {
+            final metadataContent = await entity.readAsString();
+            final metadata = jsonDecode(metadataContent);
+            if (metadata.containsKey('originalPath')) {
+              originalPaths.add(metadata['originalPath']);
+            }
+          } catch (e) {
+            debugPrint('Error reading recycle bin metadata: $e');
+          }
+        }
+      }
+    }
+    return originalPaths;
+  }
 }
