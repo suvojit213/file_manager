@@ -19,6 +19,14 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.flutter_file_manager/permissions"
     private var pendingResult: MethodChannel.Result? = null
 
+    import android.os.StatFs
+import java.io.File
+
+class MainActivity : FlutterActivity() {
+    private val CHANNEL = "com.example.flutter_file_manager/permissions"
+    private val DISK_SPACE_CHANNEL = "com.example.flutter_file_manager/disk_space"
+    private var pendingResult: MethodChannel.Result? = null
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
@@ -33,6 +41,27 @@ class MainActivity : FlutterActivity() {
                 else -> {
                     result.notImplemented()
                 }
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DISK_SPACE_CHANNEL).setMethodCallHandler {
+            call, result ->
+            if (call.method == "getDiskSpace") {
+                val path = call.argument<String>("path") ?: Environment.getExternalStorageDirectory().path
+                val statFs = StatFs(path)
+                val blockSize = statFs.blockSizeLong
+                val totalBlocks = statFs.blockCountLong
+                val availableBlocks = statFs.availableBlocksLong
+
+                val totalSpace = totalBlocks * blockSize
+                val freeSpace = availableBlocks * blockSize
+
+                val resultMap = HashMap<String, Long>()
+                resultMap["totalSpace"] = totalSpace
+                resultMap["freeSpace"] = freeSpace
+                result.success(resultMap)
+            } else {
+                result.notImplemented()
             }
         }
     }

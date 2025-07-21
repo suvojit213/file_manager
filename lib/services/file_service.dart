@@ -9,7 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
-import 'package:disk_space/disk_space.dart';
+
 
 import 'package:flutter_file_manager/services/recycle_bin_service.dart';
 
@@ -17,6 +17,7 @@ class FileService {
   final RecycleBinService _recycleBinService = RecycleBinService();
   // Request storage permissions
   static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
+  static const diskSpacePlatform = MethodChannel('com.example.flutter_file_manager/disk_space');
 
   Future<bool> requestStoragePermission() async {
     try {
@@ -230,10 +231,32 @@ class FileService {
   }
 
   Future<double> getTotalSpace(String path) async {
-    return await DiskSpace.getTotalDiskSpace ?? 0;
+    try {
+      final Map<dynamic, dynamic>? result = await diskSpacePlatform.invokeMethod(
+        'getDiskSpace',
+        {'path': path},
+      );
+      if (result != null && result.containsKey('totalSpace')) {
+        return (result['totalSpace'] as int).toDouble();
+      }
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get total disk space: '${e.message}'");
+    }
+    return 0.0;
   }
 
   Future<double> getFreeSpace(String path) async {
-    return await DiskSpace.getFreeDiskSpace ?? 0;
+    try {
+      final Map<dynamic, dynamic>? result = await diskSpacePlatform.invokeMethod(
+        'getDiskSpace',
+        {'path': path},
+      );
+      if (result != null && result.containsKey('freeSpace')) {
+        return (result['freeSpace'] as int).toDouble();
+      }
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get free disk space: '${e.message}'");
+    }
+    return 0.0;
   }
 }
