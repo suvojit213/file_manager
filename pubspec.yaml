@@ -28,7 +28,7 @@ dependencies:
   path: ^1.9.0 # For path manipulation
   shared_preferences: ^2.0.15 # For theme persistence
   fl_chart: ^0.63.0
-  disk_space: ^0.2.1
+  disk_space_2: ^1.0.0
   flutter_highlight: ^0.7.0
   google_fonts: ^6.2.1
   
