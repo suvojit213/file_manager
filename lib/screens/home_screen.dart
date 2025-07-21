@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final FileService _fileService = FileService();
   List<FileModel> _files = [];
   List<FileModel> _filteredFiles = [];
@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (widget.initialPath != null) {
       _currentPath = widget.initialPath!;
       _loadFiles(_currentPath);
@@ -44,9 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadFiles(_currentPath);
+    }
   }
 
   void _onSearchChanged() {
@@ -145,12 +154,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showDeleteConfirmDialog(FileModel file) async {
+    final size = await _fileService.getFileOrDirectorySize(file.path);
+    final isLargeFile = size > (2 * 1024 * 1024 * 1024); // 2GB in bytes
+
+    String contentMessage;
+    if (isLargeFile) {
+      contentMessage = 'This item is larger than 2GB. Deleting "${file.name}" will permanently remove it and bypass the recycle bin. Are you sure you want to proceed?';
+    } else {
+      contentMessage = 'Deleting "${file.name}" will move it to the recycle bin. You can restore it later. Are you sure you want to proceed?';
+    }
+
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete'),
-          content: Text('Are you sure you want to delete ${file.name}?'),
+          content: Text(contentMessage),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -159,7 +178,17 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () async {
-                await _fileService.deleteFile(file.path);
+                if (isLargeFile) {
+                  await _fileService.permanentlyDelete(file.path);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('"${file.name}" permanently deleted.')),
+                  );
+                } else {
+                  await _fileService.deleteFile(file.path); // This moves to recycle bin
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('"${file.name}" moved to recycle bin.')),
+                  );
+                }
                 _loadFiles(_currentPath); // Refresh list
                 Navigator.pop(context);
               },
@@ -442,166 +471,172 @@ class _HomeScreenState extends State<HomeScreen> {
           : _filteredFiles.isEmpty
               ? const Center(child: Text('No files or folders found.'))
               : _isGridView
-                  ? GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // Adjust as needed
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
-                      ),
-                      itemCount: _filteredFiles.length,
-                      itemBuilder: (context, index) {
-                        final file = _filteredFiles[index];
-                        return GestureDetector(
-                          onTap: () {
-                            if (file.type == FileType.directory) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(initialPath: file.path),
-                                ),
-                              );
-                            } else if (file.type == FileType.image) {
-                              final imagePaths = _filteredFiles
-                                  .where((f) => f.type == FileType.image)
-                                  .map((f) => f.path)
-                                  .toList();
-                              final initialIndex = imagePaths.indexOf(file.path);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ImageViewerScreen(
-                                    imagePaths: imagePaths,
-                                    initialIndex: initialIndex,
+                  ? RefreshIndicator(
+                      onRefresh: () => _loadFiles(_currentPath),
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3, // Adjust as needed
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ),
+                        itemCount: _filteredFiles.length,
+                        itemBuilder: (context, index) {
+                          final file = _filteredFiles[index];
+                          return GestureDetector(
+                            onTap: () {
+                              if (file.type == FileType.directory) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(initialPath: file.path),
                                   ),
-                                ),
-                              );
-                            } else if (file.path.endsWith('.txt') ||
-                               file.path.endsWith('.md') ||
-                               file.path.endsWith('.json') ||
-                               file.path.endsWith('.xml') ||
-                               file.path.endsWith('.log') ||
-                               file.path.endsWith('.csv') ||
-                               file.path.endsWith('.dart') ||
-                               file.path.endsWith('.yaml') ||
-                               file.path.endsWith('.kts') ||
-                               file.path.endsWith('.gradle') ||
-                               file.path.endsWith('.properties') ||
-                               file.path.endsWith('.swift') ||
-                               file.path.endsWith('.h') ||
-                               file.path.endsWith('.m') ||
-                               file.path.endsWith('.c') ||
-                               file.path.endsWith('.cpp') ||
-                               file.path.endsWith('.java') ||
-                               file.path.endsWith('.js') ||
-                               file.path.endsWith('.ts') ||
-                               file.path.endsWith('.html') ||
-                               file.path.endsWith('.css') ||
-                               file.path.endsWith('.py') ||
-                               file.path.endsWith('.sh') ||
-                               file.path.endsWith('.bat') ||
-                               file.path.endsWith('.ps1')) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TextEditorScreen(file: file),
-                                ),
-                              );
-                            } else {
-                              _fileService.openFile(file.path);
-                            }
-                          },
-                          onLongPress: () {
-                            _showFileOptions(file);
-                          },
-                          child: Card(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  _fileTileIcon(file.type), // Helper function for icon
-                                  size: 48.0,
-                                ),
-                                Text(
-                                  file.name,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                                );
+                              } else if (file.type == FileType.image) {
+                                final imagePaths = _filteredFiles
+                                    .where((f) => f.type == FileType.image)
+                                    .map((f) => f.path)
+                                    .toList();
+                                final initialIndex = imagePaths.indexOf(file.path);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ImageViewerScreen(
+                                      imagePaths: imagePaths,
+                                      initialIndex: initialIndex,
+                                    ),
+                                  ),
+                                );
+                              } else if (file.path.endsWith('.txt') ||
+                                 file.path.endsWith('.md') ||
+                                 file.path.endsWith('.json') ||
+                                 file.path.endsWith('.xml') ||
+                                 file.path.endsWith('.log') ||
+                                 file.path.endsWith('.csv') ||
+                                 file.path.endsWith('.dart') ||
+                                 file.path.endsWith('.yaml') ||
+                                 file.path.endsWith('.kts') ||
+                                 file.path.endsWith('.gradle') ||
+                                 file.path.endsWith('.properties') ||
+                                 file.path.endsWith('.swift') ||
+                                 file.path.endsWith('.h') ||
+                                 file.path.endsWith('.m') ||
+                                 file.path.endsWith('.c') ||
+                                 file.path.endsWith('.cpp') ||
+                                 file.path.endsWith('.java') ||
+                                 file.path.endsWith('.js') ||
+                                 file.path.endsWith('.ts') ||
+                                 file.path.endsWith('.html') ||
+                                 file.path.endsWith('.css') ||
+                                 file.path.endsWith('.py') ||
+                                 file.path.endsWith('.sh') ||
+                                 file.path.endsWith('.bat') ||
+                                 file.path.endsWith('.ps1')) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TextEditorScreen(file: file),
+                                  ),
+                                );
+                              } else {
+                                _fileService.openFile(file.path);
+                              }
+                            },
+                            onLongPress: () {
+                              _showFileOptions(file);
+                            },
+                            child: Card(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _fileTileIcon(file.type), // Helper function for icon
+                                    size: 48.0,
+                                  ),
+                                  Text(
+                                    file.name,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     )
-                  : ListView.builder(
-                      itemCount: _filteredFiles.length,
-                      itemBuilder: (context, index) {
-                        final file = _filteredFiles[index];
-                        return FileTile(
-                          file: file,
-                          onTap: () {
-                            if (file.type == FileType.directory) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(initialPath: file.path),
-                                ),
-                              );
-                            } else if (file.type == FileType.image) {
-                              final imagePaths = _filteredFiles
-                                  .where((f) => f.type == FileType.image)
-                                  .map((f) => f.path)
-                                  .toList();
-                              final initialIndex = imagePaths.indexOf(file.path);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ImageViewerScreen(
-                                    imagePaths: imagePaths,
-                                    initialIndex: initialIndex,
+                  : RefreshIndicator(
+                      onRefresh: () => _loadFiles(_currentPath),
+                      child: ListView.builder(
+                        itemCount: _filteredFiles.length,
+                        itemBuilder: (context, index) {
+                          final file = _filteredFiles[index];
+                          return FileTile(
+                            file: file,
+                            onTap: () {
+                              if (file.type == FileType.directory) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(initialPath: file.path),
                                   ),
-                                ),
-                              );
-                            } else if (file.path.endsWith('.txt') ||
-                               file.path.endsWith('.md') ||
-                               file.path.endsWith('.json') ||
-                               file.path.endsWith('.xml') ||
-                               file.path.endsWith('.log') ||
-                               file.path.endsWith('.csv') ||
-                               file.path.endsWith('.dart') ||
-                               file.path.endsWith('.yaml') ||
-                               file.path.endsWith('.kts') ||
-                               file.path.endsWith('.gradle') ||
-                               file.path.endsWith('.properties') ||
-                               file.path.endsWith('.swift') ||
-                               file.path.endsWith('.h') ||
-                               file.path.endsWith('.m') ||
-                               file.path.endsWith('.c') ||
-                               file.path.endsWith('.cpp') ||
-                               file.path.endsWith('.java') ||
-                               file.path.endsWith('.js') ||
-                               file.path.endsWith('.ts') ||
-                               file.path.endsWith('.html') ||
-                               file.path.endsWith('.css') ||
-                               file.path.endsWith('.py') ||
-                               file.path.endsWith('.sh') ||
-                               file.path.endsWith('.bat') ||
-                               file.path.endsWith('.ps1')) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TextEditorScreen(file: file),
-                                ),
-                              );
-                            } else {
-                              _fileService.openFile(file.path);
-                            }
-                          },
-                          onLongPress: () {
-                            _showFileOptions(file);
-                          },
-                        );
-                      },
+                                );
+                              } else if (file.type == FileType.image) {
+                                final imagePaths = _filteredFiles
+                                    .where((f) => f.type == FileType.image)
+                                    .map((f) => f.path)
+                                    .toList();
+                                final initialIndex = imagePaths.indexOf(file.path);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ImageViewerScreen(
+                                      imagePaths: imagePaths,
+                                      initialIndex: initialIndex,
+                                    ),
+                                  ),
+                                );
+                              } else if (file.path.endsWith('.txt') ||
+                                 file.path.endsWith('.md') ||
+                                 file.path.endsWith('.json') ||
+                                 file.path.endsWith('.xml') ||
+                                 file.path.endsWith('.log') ||
+                                 file.path.endsWith('.csv') ||
+                                 file.path.endsWith('.dart') ||
+                                 file.path.endsWith('.yaml') ||
+                                 file.path.endsWith('.kts') ||
+                                 file.path.endsWith('.gradle') ||
+                                 file.path.endsWith('.properties') ||
+                                 file.path.endsWith('.swift') ||
+                                 file.path.endsWith('.h') ||
+                                 file.path.endsWith('.m') ||
+                                 file.path.endsWith('.c') ||
+                                 file.path.endsWith('.cpp') ||
+                                 file.path.endsWith('.java') ||
+                                 file.path.endsWith('.js') ||
+                                 file.path.endsWith('.ts') ||
+                                 file.path.endsWith('.html') ||
+                                 file.path.endsWith('.css') ||
+                                 file.path.endsWith('.py') ||
+                                 file.path.endsWith('.sh') ||
+                                 file.path.endsWith('.bat') ||
+                                 file.path.endsWith('.ps1')) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TextEditorScreen(file: file),
+                                  ),
+                                );
+                              } else {
+                                _fileService.openFile(file.path);
+                              }
+                            },
+                            onLongPress: () {
+                              _showFileOptions(file);
+                            },
+                          );
+                        },
+                      ),
                     ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

@@ -259,4 +259,40 @@ class FileService {
     }
     return 0.0;
   }
+
+  Future<int> getFileOrDirectorySize(String path) async {
+    try {
+      final entity = FileSystemEntity.typeSync(path);
+      if (entity == FileSystemEntityType.file) {
+        return File(path).lengthSync();
+      } else if (entity == FileSystemEntityType.directory) {
+        int totalSize = 0;
+        final directory = Directory(path);
+        if (await directory.exists()) {
+          await for (var entity in directory.list(recursive: true, followLinks: false)) {
+            if (entity is File) {
+              totalSize += entity.lengthSync();
+            }
+          }
+        }
+        return totalSize;
+      }
+    } catch (e) {
+      debugPrint('Error getting size: $e');
+    }
+    return 0;
+  }
+
+  Future<void> permanentlyDelete(String path) async {
+    try {
+      final entity = FileSystemEntity.typeSync(path);
+      if (entity == FileSystemEntityType.file) {
+        await File(path).delete();
+      } else if (entity == FileSystemEntityType.directory) {
+        await Directory(path).delete(recursive: true);
+      }
+    } catch (e) {
+      debugPrint('Error permanently deleting: $e');
+    }
+  }
 }
