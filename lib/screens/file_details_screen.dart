@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as Math;
 
 class FileDetailsScreen extends StatelessWidget {
   final FileModel file;
@@ -11,13 +12,9 @@ class FileDetailsScreen extends StatelessWidget {
   String _formatBytes(int bytes) {
     if (bytes <= 0) return "0 B";
     const suffixes = ["B", "KB", "MB", "GB", "TB"];
-    int i = (bytes > 0 ? (log(bytes) / log(1024)).floor() : 0);
-    return '${(bytes / pow(1024, i)).toStringAsFixed(2)} ${suffixes[i]}';
+    int i = (bytes > 0 ? (Math.log(bytes) / Math.log(1024)) : 0).floor();
+    return '${(bytes / Math.pow(1024, i)).toStringAsFixed(2)} ${suffixes[i]}';
   }
-
-  // Helper for log and pow, as dart:math is not imported by default
-  double log(num x) => x == 0 ? double.negativeInfinity : x == 1 ? 0.0 : x == double.infinity ? double.infinity : x == double.negativeInfinity ? double.nan : x.toDouble();
-  num pow(num base, num exponent) => base == 0 ? 0 : base == 1 ? 1 : base.toDouble();
 
   @override
   Widget build(BuildContext context) {
