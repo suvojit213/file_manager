@@ -11,26 +11,6 @@ import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
 
 class FileService {
-  Future<String> readFileAsString(String path) async {
-    try {
-      final file = File(path);
-      return await file.readAsString();
-    } catch (e) {
-      print('Error reading file: $e');
-      return ''; // Or throw an exception, depending on desired error handling
-    }
-  }
-
-  Future<void> writeFileAsString(String path, String content) async {
-    try {
-      final file = File(path);
-      await file.writeAsString(content);
-    } catch (e) {
-      print('Error writing file: $e');
-      // Handle error appropriately
-    }
-  }
-}
   // Request storage permissions
   static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
 
@@ -225,6 +205,26 @@ class FileService {
       }
     } catch (e) {
       debugPrint('Error listing files recursively: $e');
+    }
+  }
+
+  Future<String> readFileAsString(String path) async {
+    try {
+      final file = File(path);
+      return await file.readAsString();
+    } catch (e) {
+      print('Error reading file: $e');
+      return ''; // Or throw an exception, depending on desired error handling
+    }
+  }
+
+  Future<void> writeFileAsString(String path, String content) async {
+    try {
+      final file = File(path);
+      await file.writeAsString(content);
+    } catch (e) {
+      print('Error writing file: $e');
+      // Handle error appropriately
     }
   }
 }
