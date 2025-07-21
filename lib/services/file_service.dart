@@ -49,20 +49,15 @@ class FileService {
       if (await directory.exists()) {
         debugPrint('Directory exists: $path');
         final entities = directory.listSync(recursive: false, followLinks: false);
-        debugPrint('Found ${entities.length} entities in $path');
         for (var entity in entities) {
-          debugPrint('  Entity: ${entity.path}');
           final fileModel = FileModel.fromFileSystemEntity(entity);
           if (!fileModel.isHidden || showHidden) {
             files.add(fileModel);
           }
         }
-      } else {
-        debugPrint('Directory does not exist: $path');
+      } catch (e) {
+        debugPrint('Error listing files: $e');
       }
-    } catch (e) {
-      debugPrint('Error listing files: $e');
-    }
     return files;
   }
 

@@ -40,6 +40,7 @@ class FileTile extends StatelessWidget {
     if (bytes <= 0) return "0 B";
     const suffixes = ["B", "KB", "MB", "GB", "TB"];
     int i = (bytes > 0 ? (log(bytes) / log(1024)).floor() : 0);
+    if (i >= suffixes.length) i = suffixes.length - 1;
     return '${(bytes / pow(1024, i)).toStringAsFixed(2)} ${suffixes[i]}';
   }
 
