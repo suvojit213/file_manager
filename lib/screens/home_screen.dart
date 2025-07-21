@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_file_manager/screens/destination_selection_screen.dart';
 import 'package:flutter_file_manager/screens/file_details_screen.dart';
 import 'package:flutter_file_manager/screens/text_editor_screen.dart';
+import 'package:flutter_file_manager/screens/image_viewer_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? initialPath;
@@ -459,6 +460,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => HomeScreen(initialPath: file.path),
                                 ),
                               );
+                            } else if (file.type == FileType.image) {
+                              final imagePaths = _filteredFiles
+                                  .where((f) => f.type == FileType.image)
+                                  .map((f) => f.path)
+                                  .toList();
+                              final initialIndex = imagePaths.indexOf(file.path);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ImageViewerScreen(
+                                    imagePaths: imagePaths,
+                                    initialIndex: initialIndex,
+                                  ),
+                                ),
+                              );
                             } else if (file.path.endsWith('.txt') ||
                                file.path.endsWith('.md') ||
                                file.path.endsWith('.json') ||
@@ -529,6 +545,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => HomeScreen(initialPath: file.path),
+                                ),
+                              );
+                            } else if (file.type == FileType.image) {
+                              final imagePaths = _filteredFiles
+                                  .where((f) => f.type == FileType.image)
+                                  .map((f) => f.path)
+                                  .toList();
+                              final initialIndex = imagePaths.indexOf(file.path);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ImageViewerScreen(
+                                    imagePaths: imagePaths,
+                                    initialIndex: initialIndex,
+                                  ),
                                 ),
                               );
                             } else if (file.path.endsWith('.txt') ||
