@@ -69,13 +69,13 @@ class AppThemes {
         fontWeight: FontWeight.w600,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
       elevation: 8,
     ),
-    floatingActionButtonTheme: const FloatingActionButtonTheme(
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),
@@ -96,13 +96,13 @@ class AppThemes {
         fontWeight: FontWeight.w600,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
       elevation: 8,
     ),
-    floatingActionButtonTheme: const FloatingActionButtonTheme(
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),
@@ -123,13 +123,13 @@ class AppThemes {
         fontWeight: FontWeight.w600,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarTheme(
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
       elevation: 8,
     ),
-    floatingActionButtonTheme: const FloatingActionButtonTheme(
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),

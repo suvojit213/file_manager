@@ -297,9 +297,7 @@ class _StorageChartScreenState extends State<StorageChartScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CategoryScreen(
-                  categoryName: category['name'] as String,
-                ),
+                builder: (context) => const CategoryScreen(),
               ),
             );
           },
