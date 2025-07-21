@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:flutter_file_manager/widgets/floating_navbar.dart';
+import 'package:flutter_file_manager/widgets/side_bar_menu.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/widgets/file_tile.dart';
@@ -189,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Create'),
               onPressed: () async {
-                final newFolderPath = '${_currentPath}/${_folderNameController.text}';
+                final newFolderPath = '$_currentPath/${_folderNameController.text}';
                 await _fileService.createFolder(newFolderPath);
                 _loadFiles(_currentPath); // Refresh list
                 Navigator.pop(context);
@@ -220,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Zip'),
               onPressed: () async {
-                final outputPath = '${_currentPath}/${_zipNameController.text}';
+                final outputPath = '$_currentPath/${_zipNameController.text}';
                 await _fileService.zipFiles([file.path], outputPath);
                 _loadFiles(_currentPath); // Refresh list
                 Navigator.pop(context);
@@ -271,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (selectedDestination != null) {
-      final newPath = '${selectedDestination}/${file.name}';
+      final newPath = '$selectedDestination/${file.name}';
       if (isCopy) {
         await _fileService.copyFile(file.path, newPath);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -404,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }).toList(),
                   )
-                : Text(_currentPath.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
+                : Text(_currentIspth.split('/').last.isEmpty ? 'File Manager' : _currentPath.split('/').last),
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
@@ -436,6 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      drawer: const SideBarMenu(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _filteredFiles.isEmpty
@@ -578,8 +578,6 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: const Icon(Icons.create_new_folder),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const FloatingNavBar(),
     );
   }
 
