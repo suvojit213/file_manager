@@ -8,6 +8,7 @@ import 'package:flutter_file_manager/utils/app_theme.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideBarMenu extends StatefulWidget {
   final ValueChanged<String> onStorageSelected;
