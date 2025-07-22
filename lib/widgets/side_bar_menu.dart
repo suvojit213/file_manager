@@ -10,7 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class SideBarMenu extends StatefulWidget {
-  const SideBarMenu({super.key});
+  final ValueChanged<String> onStorageSelected;
+  const SideBarMenu({super.key, required this.onStorageSelected});
 
   @override
   State<SideBarMenu> createState() => _SideBarMenuState();
@@ -82,6 +83,9 @@ class _SideBarMenuState extends State<SideBarMenu> {
                         _selectedStoragePath = newValue;
                         _updateSpaceInfo();
                       });
+                      if (newValue != null) {
+                        widget.onStorageSelected(newValue.path);
+                      }
                     },
                     items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
                       return DropdownMenuItem<Directory>(

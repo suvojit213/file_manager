@@ -65,6 +65,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _filterFiles(_searchController.text);
   }
 
+  void _onStoragePathSelected(String path) {
+    _loadFiles(path);
+  }
+
   void _filterFiles(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -454,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ],
       ),
-      drawer: const SideBarMenu(),
+      drawer: SideBarMenu(onStorageSelected: _onStoragePathSelected),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
