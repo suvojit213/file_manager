@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -298,7 +297,7 @@ class FileService {
     }
   }
 
-  '''  static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
+  static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
     List<FileModel> fileList = [];
     try {
       final directory = Directory(path);
@@ -332,4 +331,4 @@ class FileService {
     }
     return count;
   }
-}''
+}

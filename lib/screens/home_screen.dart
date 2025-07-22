@@ -1,4 +1,4 @@
-'''import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_file_manager/widgets/side_bar_menu.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
@@ -665,4 +665,3 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 }
-'''
