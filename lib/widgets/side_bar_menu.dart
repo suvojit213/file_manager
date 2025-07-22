@@ -28,43 +28,43 @@ class SideBarMenu extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.folder),
-            title: const Text('Files'),
+            leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Files', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Icon(Icons.security),
-            title: const Text('Vault'),
+            leading: Icon(Icons.security, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Vault', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const VaultScreen()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.delete_outline),
-            title: const Text('Recycle Bin'),
+            leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Recycle Bin', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const RecycleBinScreen()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('Categories'),
+            leading: Icon(Icons.category, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Categories', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryScreen()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.data_usage),
-            title: const Text('Storage Usage'),
+            leading: Icon(Icons.data_usage, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Storage Usage', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const StorageChartScreen()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
+            title: Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
             },
