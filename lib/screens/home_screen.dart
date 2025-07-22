@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _isGridView = false; // New state for grid/list view
   List<Directory> _storagePaths = []; // New state for storing available storage paths
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -469,7 +471,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       : _isGridView
                           ? RefreshIndicator(
                               onRefresh: () => _loadFiles(_currentPath),
-                              child: GridView.builder(
+                              child: Scrollbar(
+                                controller: _scrollController,
+                                child: GridView.builder(
+                                  controller: _scrollController,
                                 padding: const EdgeInsets.all(16.0),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
@@ -517,7 +522,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             )
                           : RefreshIndicator(
                               onRefresh: () => _loadFiles(_currentPath),
-                              child: ListView.builder(
+                              child: Scrollbar(
+                                controller: _scrollController,
+                                child: ListView.builder(
+                                  controller: _scrollController,
                                 itemCount: _filteredFiles.length,
                                 itemBuilder: (context, index) {
                                   final file = _filteredFiles[index];
@@ -566,7 +574,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           builder: (context) => HomeScreen(initialPath: file.path),
         ),
       );
-    } else if (file.type == FileType.image) {
+    }
+    else if (file.type == FileType.image) {
       final imagePaths = _filteredFiles
           .where((f) => f.type == FileType.image)
           .map((f) => f.path)
