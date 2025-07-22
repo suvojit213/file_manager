@@ -67,8 +67,9 @@ class _SideBarMenuState extends State<SideBarMenu> {
   Widget build(BuildContext context) {
     return Drawer(
       width: 250.0, // Adjust this value as needed
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: RepaintBoundary(
+        child: ListView(
+          padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
