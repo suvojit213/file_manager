@@ -1,13 +1,55 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/screens/category_screen.dart';
 import 'package:flutter_file_manager/screens/recycle_bin_screen.dart';
 import 'package:flutter_file_manager/screens/settings_screen.dart';
 import 'package:flutter_file_manager/screens/vault_screen.dart';
 import 'package:flutter_file_manager/screens/storage_chart_screen.dart';
+import 'package:flutter_file_manager/utils/app_theme.dart';
+import 'package:flutter_file_manager/services/file_service.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-class SideBarMenu extends StatelessWidget {
+class SideBarMenu extends StatefulWidget {
   const SideBarMenu({super.key});
+
+  @override
+  State<SideBarMenu> createState() => _SideBarMenuState();
+}
+
+class _SideBarMenuState extends State<SideBarMenu> {
+  final FileService _fileService = FileService();
+  List<Directory> _storagePaths = [];
+  Directory? _selectedStoragePath;
+  double _totalSpace = 0.0;
+  double _freeSpace = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStorageInfo();
+  }
+
+  Future<void> _loadStorageInfo() async {
+    final paths = await _fileService.getStoragePaths();
+    setState(() {
+      _storagePaths = paths;
+      if (paths.isNotEmpty) {
+        _selectedStoragePath = paths.first;
+        _updateSpaceInfo();
+      }
+    });
+  }
+
+  Future<void> _updateSpaceInfo() async {
+    if (_selectedStoragePath != null) {
+      final total = await _fileService.getTotalSpace(_selectedStoragePath!.path);
+      final free = await _fileService.getFreeSpace(_selectedStoragePath!.path);
+      setState(() {
+        _totalSpace = total;
+        _freeSpace = free;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +61,53 @@ class SideBarMenu extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
             ),
-            child: Text(
-              'File Manager',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontSize: 24,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'File Manager',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (_storagePaths.isNotEmpty)
+                  DropdownButton<Directory>(
+                    value: _selectedStoragePath,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    onChanged: (Directory? newValue) {
+                      setState(() {
+                        _selectedStoragePath = newValue;
+                        _updateSpaceInfo();
+                      });
+                    },
+                    items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                      return DropdownMenuItem<Directory>(
+                        value: dir,
+                        child: Text(
+                          dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                const SizedBox(height: 4),
+                Text(
+                  'Total: ${AppThemes.formatBytes(_totalSpace.toInt())}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  'Free: ${AppThemes.formatBytes(_freeSpace.toInt())}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ),
           ListTile(
