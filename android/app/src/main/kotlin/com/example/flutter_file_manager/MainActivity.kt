@@ -5,8 +5,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle // Added
 import android.os.Environment
 import android.provider.Settings
+import android.view.Display // Added
+import android.view.WindowManager // Added
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,6 +26,27 @@ class MainActivity : FlutterActivity() {
     private val DISK_SPACE_CHANNEL = "com.example.flutter_file_manager/disk_space"
     private val APK_INSTALL_CHANNEL = "com.example.flutter_file_manager/apk_install"
     private var pendingResult: MethodChannel.Result? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val display = display
+            if (display != null) {
+                val modes = display.supportedModes
+                var bestMode: Display.Mode? = null
+                for (mode in modes) {
+                    if (bestMode == null || mode.refreshRate > bestMode.refreshRate) {
+                        bestMode = mode
+                    }
+                }
+                if (bestMode != null) {
+                    val layoutParams = window.attributes
+                    layoutParams.preferredDisplayModeId = bestMode.modeId
+                    window.attributes = layoutParams
+                }
+            }
+        }
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
