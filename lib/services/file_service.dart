@@ -11,8 +11,6 @@ import 'package:archive/archive_io.dart';
 import 'package:external_path/external_path.dart';
 
 
-import 'package:flutter_file_manager/services/recycle_bin_service.dart';
-
 // Top-level function for Isolate
 Future<int> _getDirectoryItemCountIsolate(String path) async {
   int count = 0;
@@ -30,7 +28,6 @@ Future<int> _getDirectoryItemCountIsolate(String path) async {
 }
 
 class FileService {
-  final RecycleBinService _recycleBinService = RecycleBinService();
   // Request storage permissions
   static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
   static const diskSpacePlatform = MethodChannel('com.example.flutter_file_manager/disk_space');
@@ -69,14 +66,10 @@ class FileService {
       final directory = Directory(path);
       if (await directory.exists()) {
         debugPrint('Directory exists: $path');
-        final recycledPaths = await _recycleBinService.getRecycledFileOriginalPaths();
         await for (var entity in directory.list(recursive: false, followLinks: false)) {
-          // Check if the entity's path is in the recycledPaths list
-          if (!recycledPaths.contains(entity.path)) {
-            final fileModel = FileModel.fromFileSystemEntity(entity);
-            if (!fileModel.isHidden || showHidden) {
-              files.add(fileModel);
-            }
+          final fileModel = FileModel.fromFileSystemEntity(entity);
+          if (!fileModel.isHidden || showHidden) {
+            files.add(fileModel);
           }
         }
       }
@@ -107,9 +100,14 @@ class FileService {
 
   Future<void> deleteFile(String path) async {
     try {
-      await _recycleBinService.moveToRecycleBin(path);
+      final entity = FileSystemEntity.typeSync(path);
+      if (entity == FileSystemEntityType.file) {
+        await File(path).delete();
+      } else if (entity == FileSystemEntityType.directory) {
+        await Directory(path).delete(recursive: true);
+      }
     } catch (e) {
-      debugPrint('Error moving file to recycle bin: $e');
+      debugPrint('Error permanently deleting: $e');
     }
   }
 
