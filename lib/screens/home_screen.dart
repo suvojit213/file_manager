@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:flutter_file_manager/widgets/side_bar_menu.dart';
+
 import 'package:flutter_file_manager/services/file_service.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/widgets/file_tile.dart';
@@ -435,13 +435,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               });
             },
           ),
-          const IconButton( // Added const
-            icon: Icon(Icons.more_vert),
-            onPressed: null, // Changed to null as it was an empty function
+          IconButton(
+            icon: const Icon(Icons.more_horiz),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+            },
           ),
         ],
       ),
-      drawer: SideBarMenu(onStorageSelected: _onStoragePathSelected),
+      
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
