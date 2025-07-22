@@ -31,12 +31,20 @@ class _SideBarMenuState extends State<SideBarMenu> {
   }
 
   Future<void> _loadStorageInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPath = prefs.getString('selectedStoragePath');
+
     final paths = await _fileService.getStoragePaths();
     setState(() {
       _storagePaths = paths;
-      if (paths.isNotEmpty) {
+      if (savedPath != null && paths.any((dir) => dir.path == savedPath)) {
+        _selectedStoragePath = paths.firstWhere((dir) => dir.path == savedPath);
+      } else if (paths.isNotEmpty) {
         _selectedStoragePath = paths.first;
+      }
+      if (_selectedStoragePath != null) {
         _updateSpaceInfo();
+        widget.onStorageSelected(_selectedStoragePath!.path);
       }
     });
   }
@@ -49,6 +57,8 @@ class _SideBarMenuState extends State<SideBarMenu> {
         _totalSpace = total;
         _freeSpace = free;
       });
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('selectedStoragePath', _selectedStoragePath!.path);
     }
   }
 
