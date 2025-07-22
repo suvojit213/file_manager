@@ -54,7 +54,65 @@ class _SideBarMenuState extends State<SideBarMenu> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      width: 250.0, // Adjust this value as needed
       child: ListView(
+        padding: EdgeInsets.zero,
+        // Set the background color of the ListView to match the theme's scaffold background
+        // This ensures the entire drawer adapts to the theme.
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor, // Dynamic background color
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'File Manager',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface, // Use onSurface for text color
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (_storagePaths.isNotEmpty)
+                  DropdownButton<Directory>(
+                    value: _selectedStoragePath,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    onChanged: (Directory? newValue) {
+                      setState(() {
+                        _selectedStoragePath = newValue;
+                        _updateSpaceInfo();
+                      });
+                    },
+                    items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                      return DropdownMenuItem<Directory>(
+                        value: dir,
+                        child: Text(
+                          dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                const SizedBox(height: 4),
+                Text(
+                  'Total: ${AppThemes.formatBytes(_totalSpace.toInt())}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  'Free: ${AppThemes.formatBytes(_freeSpace.toInt())}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
