@@ -1,4 +1,4 @@
-'''import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
 
@@ -45,4 +45,3 @@ class _DirectoryItemCountState extends State<DirectoryItemCount> {
     );
   }
 }
-'''
