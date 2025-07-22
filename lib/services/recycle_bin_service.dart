@@ -56,10 +56,13 @@ class RecycleBinService {
   }
 
   Future<void> deletePermanently(String filePath) async {
-    final file = File(filePath);
-    if (await file.exists()) {
-      await file.delete();
+    final entity = FileSystemEntity.typeSync(filePath); // Determine if it's a file or directory
+    if (entity == FileSystemEntityType.file) {
+      await File(filePath).delete();
+    } else if (entity == FileSystemEntityType.directory) {
+      await Directory(filePath).delete(recursive: true);
     }
+
     final metadataFilePath = '$filePath.json';
     final metadataFile = File(metadataFilePath);
     if (await metadataFile.exists()) {
