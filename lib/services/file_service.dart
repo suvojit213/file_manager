@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
@@ -11,6 +12,22 @@ import 'package:external_path/external_path.dart';
 
 
 import 'package:flutter_file_manager/services/recycle_bin_service.dart';
+
+// Top-level function for Isolate
+Future<int> _getDirectoryItemCountIsolate(String path) async {
+  int count = 0;
+  try {
+    final directory = Directory(path);
+    if (await directory.exists()) {
+      await for (var entity in directory.list(recursive: false, followLinks: false)) {
+        count++;
+      }
+    }
+  } catch (e) {
+    debugPrint('Error getting directory item count in isolate: $e');
+  }
+  return count;
+}
 
 class FileService {
   final RecycleBinService _recycleBinService = RecycleBinService();
@@ -318,17 +335,6 @@ class FileService {
   }
 
   Future<int> getDirectoryItemCount(String path) async {
-    int count = 0;
-    try {
-      final directory = Directory(path);
-      if (await directory.exists()) {
-        await for (var entity in directory.list(recursive: false, followLinks: false)) {
-          count++;
-        }
-      }
-    } catch (e) {
-      debugPrint('Error getting directory item count: $e');
-    }
-    return count;
+    return compute(_getDirectoryItemCountIsolate, path);
   }
 }

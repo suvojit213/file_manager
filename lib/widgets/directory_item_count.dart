@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/models/file_model.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
+import 'package:flutter/foundation.dart';
 
 class DirectoryItemCount extends StatefulWidget {
   final FileModel file;
@@ -22,7 +23,7 @@ class _DirectoryItemCountState extends State<DirectoryItemCount> {
 
   Future<void> _getItemCount() async {
     if (widget.file.type == FileType.directory) {
-      final count = await FileService().getDirectoryItemCount(widget.file.path);
+      final count = await compute(FileService().getDirectoryItemCount, widget.file.path);
       if (mounted) {
         setState(() {
           _itemCount = count;
