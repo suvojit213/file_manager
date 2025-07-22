@@ -161,22 +161,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _showDeleteConfirmDialog(FileModel file) async {
-    final size = await _fileService.getFileOrDirectorySize(file.path);
-    final isLargeFile = size > (2 * 1024 * 1024 * 1024); // 2GB in bytes
-
-    String contentMessage;
-    if (isLargeFile) {
-      contentMessage = 'This item is larger than 2GB. Deleting "${file.name}" will permanently remove it and bypass the recycle bin. Are you sure you want to proceed?';
-    } else {
-      contentMessage = 'Deleting "${file.name}" will move it to the recycle bin. You can restore it later. Are you sure you want to proceed?';
-    }
-
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete'),
-          content: Text(contentMessage),
+          title: const Text('Delete Permanently'),
+          content: Text('Are you sure you want to permanently delete "${file.name}"? This action cannot be undone.'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -185,17 +175,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             TextButton(
               child: const Text('Delete'),
               onPressed: () async {
-                if (isLargeFile) {
-                  await _fileService.permanentlyDelete(file.path);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('"${file.name}" permanently deleted.')),
-                  );
-                } else {
-                  await _fileService.deleteFile(file.path); // This moves to recycle bin
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('"${file.name}" moved to recycle bin.')),
-                  );
-                }
+                await _fileService.permanentlyDelete(file.path);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('"${file.name}" permanently deleted.')),
+                );
                 _loadFiles(_currentPath); // Refresh list
                 Navigator.pop(context);
               },

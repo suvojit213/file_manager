@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_manager/screens/category_screen.dart';
-import 'package:flutter_file_manager/screens/recycle_bin_screen.dart';
 import 'package:flutter_file_manager/screens/settings_screen.dart';
 import 'package:flutter_file_manager/screens/vault_screen.dart';
 import 'package:flutter_file_manager/screens/storage_chart_screen.dart';
@@ -139,13 +138,6 @@ class _SideBarMenuState extends State<SideBarMenu> {
               title: Text('Vault', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const VaultScreen()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
-              title: Text('Recycle Bin', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const RecycleBinScreen()));
               },
             ),
             ListTile(
