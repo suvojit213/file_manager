@@ -298,7 +298,7 @@ class FileService {
     }
   }
 
-  static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
+  '''  static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
     List<FileModel> fileList = [];
     try {
       final directory = Directory(path);
@@ -317,4 +317,19 @@ class FileService {
     }
     return fileList;
   }
-}
+
+  Future<int> getDirectoryItemCount(String path) async {
+    int count = 0;
+    try {
+      final directory = Directory(path);
+      if (await directory.exists()) {
+        await for (var entity in directory.list(recursive: false, followLinks: false)) {
+          count++;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error getting directory item count: $e');
+    }
+    return count;
+  }
+}''

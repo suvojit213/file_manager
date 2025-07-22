@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+'''import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_file_manager/widgets/side_bar_menu.dart';
 import 'package:flutter_file_manager/services/file_service.dart';
@@ -9,6 +9,7 @@ import 'package:flutter_file_manager/screens/destination_selection_screen.dart';
 import 'package:flutter_file_manager/screens/file_details_screen.dart';
 import 'package:flutter_file_manager/screens/text_editor_screen.dart';
 import 'package:flutter_file_manager/screens/image_viewer_screen.dart';
+import 'package:flutter_file_manager/widgets/directory_item_count.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? initialPath;
@@ -507,13 +508,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           style: const TextStyle(fontSize: 12),
                                         ),
                                         if (file.type == FileType.directory)
-                                          Text(
-                                            _getFileInfo(file),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
+                                          DirectoryItemCount(file: file),
                                       ],
                                     ),
                                   );
@@ -541,7 +536,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       ),
                                     ),
                                     title: Text(file.name),
-                                    subtitle: Text(_getFileInfo(file)),
+                                    subtitle: file.type == FileType.directory
+                                        ? DirectoryItemCount(file: file)
+                                        : Text(_getFileInfo(file)),
                                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                     onTap: () => _handleFileTap(file),
                                     onLongPress: () => _showFileOptions(file),
@@ -640,12 +637,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   String _getFileInfo(FileModel file) {
-    // Mock data for demonstration - in real app, you'd get actual file count/size
     if (file.type == FileType.directory) {
-      final random = DateTime.now().millisecondsSinceEpoch % 20;
-      return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')} – $random items';
+      return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')}';
+    } else {
+      return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')}';
     }
-    return '${file.lastModified.day}.${file.lastModified.month.toString().padLeft(2, '0')}.${file.lastModified.year}, ${file.lastModified.hour.toString().padLeft(2, '0')}:${file.lastModified.minute.toString().padLeft(2, '0')}';
   }
 
   IconData _fileTileIcon(FileType type) {
@@ -669,3 +665,4 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 }
+'''
