@@ -70,107 +70,107 @@ class _SideBarMenuState extends State<SideBarMenu> {
       child: RepaintBoundary(
         child: ListView(
           padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor, // Dynamic background color
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor, // Dynamic background color
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'File Manager',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface, // Use onSurface for text color
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (_storagePaths.isNotEmpty)
+                    DropdownButton<Directory>(
+                      value: _selectedStoragePath,
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      onChanged: (Directory? newValue) {
+                        setState(() {
+                          _selectedStoragePath = newValue;
+                          _updateSpaceInfo();
+                        });
+                        if (newValue != null) {
+                          widget.onStorageSelected(newValue.path);
+                        }
+                      },
+                      items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                        return DropdownMenuItem<Directory>(
+                          value: dir,
+                          child: Text(
+                            dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Total: ${AppThemes.formatBytes(_totalSpace.toInt())}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    'Free: ${AppThemes.formatBytes(_freeSpace.toInt())}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'File Manager',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface, // Use onSurface for text color
-                    fontSize: 20,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (_storagePaths.isNotEmpty)
-                  DropdownButton<Directory>(
-                    value: _selectedStoragePath,
-                    dropdownColor: Theme.of(context).colorScheme.surface,
-                    onChanged: (Directory? newValue) {
-                      setState(() {
-                        _selectedStoragePath = newValue;
-                        _updateSpaceInfo();
-                      });
-                      if (newValue != null) {
-                        widget.onStorageSelected(newValue.path);
-                      }
-                    },
-                    items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
-                      return DropdownMenuItem<Directory>(
-                        value: dir,
-                        child: Text(
-                          dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 4),
-                Text(
-                  'Total: ${AppThemes.formatBytes(_totalSpace.toInt())}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  'Free: ${AppThemes.formatBytes(_freeSpace.toInt())}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+            ListTile(
+              leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Files', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-          ),
-          ListTile(
-            leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Files', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.security, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Vault', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const VaultScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Recycle Bin', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const RecycleBinScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.category, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Categories', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.data_usage, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Storage Usage', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const StorageChartScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
-            title: Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-            },
-          ),
-        ],
+            ListTile(
+              leading: Icon(Icons.security, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Vault', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const VaultScreen()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Recycle Bin', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const RecycleBinScreen()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.category, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Categories', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryScreen()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.data_usage, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Storage Usage', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const StorageChartScreen()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
-}
