@@ -475,49 +475,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 controller: _scrollController,
                                 child: GridView.builder(
                                   controller: _scrollController,
-                                padding: const EdgeInsets.all(16.0),
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 16.0,
-                                  mainAxisSpacing: 16.0,
-                                  childAspectRatio: 0.8,
-                                ),
-                                itemCount: _filteredFiles.length,
-                                itemBuilder: (context, index) {
-                                  final file = _filteredFiles[index];
-                                  return GestureDetector(
-                                    onTap: () => _handleFileTap(file),
-                                    onLongPress: () => _showFileOptions(file),
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color: _getFolderColor(file.type),
-                                              borderRadius: BorderRadius.circular(12.0),
-                                            ),
-                                            child: Icon(
-                                              _fileTileIcon(file.type),
-                                              size: 48.0,
-                                              color: Colors.white,
+                                  padding: const EdgeInsets.all(16.0),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 16.0,
+                                    mainAxisSpacing: 16.0,
+                                    childAspectRatio: 0.8,
+                                  ),
+                                  itemCount: _filteredFiles.length,
+                                  itemBuilder: (context, index) {
+                                    final file = _filteredFiles[index];
+                                    return GestureDetector(
+                                      onTap: () => _handleFileTap(file),
+                                      onLongPress: () => _showFileOptions(file),
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: _getFolderColor(file.type),
+                                                borderRadius: BorderRadius.circular(12.0),
+                                              ),
+                                              child: Icon(
+                                                _fileTileIcon(file.type),
+                                                size: 48.0,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          file.name,
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
-                                        if (file.type == FileType.directory)
-                                          DirectoryItemCount(file: file),
-                                      ],
-                                    ),
-                                  );
-                                },
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            file.name,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontSize: 12),
+                                          ),
+                                          if (file.type == FileType.directory)
+                                            DirectoryItemCount(file: file),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             )
                           : RefreshIndicator(
@@ -526,32 +527,33 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 controller: _scrollController,
                                 child: ListView.builder(
                                   controller: _scrollController,
-                                itemCount: _filteredFiles.length,
-                                itemBuilder: (context, index) {
-                                  final file = _filteredFiles[index];
-                                  return ListTile(
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: _getFolderColor(file.type),
-                                        borderRadius: BorderRadius.circular(8.0),
+                                  itemCount: _filteredFiles.length,
+                                  itemBuilder: (context, index) {
+                                    final file = _filteredFiles[index];
+                                    return ListTile(
+                                      leading: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: _getFolderColor(file.type),
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        child: Icon(
+                                          _fileTileIcon(file.type),
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
                                       ),
-                                      child: Icon(
-                                        _fileTileIcon(file.type),
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    title: Text(file.name),
-                                    subtitle: file.type == FileType.directory
-                                        ? DirectoryItemCount(file: file)
-                                        : Text(_getFileInfo(file)),
-                                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                    onTap: () => _handleFileTap(file),
-                                    onLongPress: () => _showFileOptions(file),
-                                  );
-                                },
+                                      title: Text(file.name),
+                                      subtitle: file.type == FileType.directory
+                                          ? DirectoryItemCount(file: file)
+                                          : Text(_getFileInfo(file)),
+                                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                      onTap: () => _handleFileTap(file),
+                                      onLongPress: () => _showFileOptions(file),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                 ),
