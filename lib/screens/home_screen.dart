@@ -617,12 +617,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _handleFileTap(FileModel file) {
     if (file.type == FileType.directory) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(initialPath: file.path),
-        ),
-      );
+      _loadFiles(file.path);
     }
     else if (file.type == FileType.image) {
       final imagePaths = _filteredFiles
