@@ -424,229 +424,231 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           return true; // Allow default back navigation (exit app)
         }
       },
-    return Scaffold(
-      appBar: AppBar(
-        title: _isSearching
-            ? TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Search files...',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-                style: TextStyle(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                  fontSize: 18.0,
-                ),
-                autofocus: true,
-              )
-            : const Text('Files'),
-        actions: [
-          IconButton(
-            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
-            onPressed: () {
-              setState(() {
-                _isGridView = !_isGridView;
-              });
-            },
-          ),
-          
-          IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchController.clear();
-                }
-              });
-            },
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_horiz),
-            onSelected: (String result) {
-              if (result == 'settings') {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-              } else if (result == 'toggle_hidden') {
+      child: Scaffold(
+        appBar: AppBar(
+          title: _isSearching
+              ? TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(
+                    hintText: 'Search files...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                    fontSize: 18.0,
+                  ),
+                  autofocus: true,
+                )
+              : const Text('Files'),
+          actions: [
+            IconButton(
+              icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
+              onPressed: () {
                 setState(() {
-                  _showHidden = !_showHidden;
+                  _isGridView = !_isGridView;
                 });
-                _loadFiles(_currentPath);
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              PopupMenuItem<String>(
-                value: 'settings',
-                child: const Text('Settings'),
-              ),
-              PopupMenuItem<String>(
-                value: 'toggle_hidden',
-                child: Text(_showHidden ? 'Stop showing hidden files' : 'Show hidden files'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                
-                
-                
-                
-                
-                // Storage selection dropdown
-                if (_storagePaths.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(25.0),
-                            border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<Directory>(
-                              value: _selectedStoragePath,
-                              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
-                              onChanged: (Directory? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedStoragePath = newValue;
-                                  });
-                                  _loadFiles(newValue.path);
-                                }
-                              },
-                              items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
-                                return DropdownMenuItem<Directory>(
-                                  value: dir,
-                                  child: Text(
-                                    dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _currentPath,
-                            style: const TextStyle(fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Expanded(
-                  child: ScrollConfiguration(
-                    behavior: const ScrollBehavior().copyWith(overscroll: false),
-                    child: _filteredFiles.isEmpty
-                        ? const Center(child: Text('No files or folders found.'))
-                        : _isGridView
-                            ? RefreshIndicator(
-                                onRefresh: () => _loadFiles(_currentPath),
-                                child: Scrollbar(
-                                  controller: _scrollController,
-                                  child: GridView.builder(
-                                    controller: _scrollController,
-                                    padding: const EdgeInsets.all(16.0),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 16.0,
-                                      mainAxisSpacing: 16.0,
-                                      childAspectRatio: 0.8,
-                                    ),
-                                    itemCount: _filteredFiles.length,
-                                    itemBuilder: (context, index) {
-                                      final file = _filteredFiles[index];
-                                      return GestureDetector(
-                                        onTap: () => _handleFileTap(file),
-                                        onLongPress: () => _showFileOptions(file),
-                                        child: Column(
-                                          children: [
-                                            Expanded(
-                                              child: Container(
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: _getFolderColor(file.type),
-                                                  borderRadius: BorderRadius.circular(12.0),
-                                                ),
-                                                child: Icon(
-                                                  _fileTileIcon(file.type),
-                                                  size: 48.0,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              file.name,
-                                              textAlign: TextAlign.center,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(fontSize: 12),
-                                            ),
-                                            if (file.type == FileType.directory)
-                                              DirectoryItemCount(file: file),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              )
-                            : RefreshIndicator(
-                                onRefresh: () => _loadFiles(_currentPath),
-                                child: Scrollbar(
-                                  controller: _scrollController,
-                                  child: ListView.builder(
-                                    controller: _scrollController,
-                                    itemCount: _filteredFiles.length,
-                                    itemBuilder: (context, index) {
-                                      final file = _filteredFiles[index];
-                                      return ListTile(
-                                        leading: Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: _getFolderColor(file.type),
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          child: Icon(
-                                            _fileTileIcon(file.type),
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        title: Text(file.name),
-                                        subtitle: file.type == FileType.directory
-                                            ? DirectoryItemCount(file: file)
-                                            : Text(_getFileInfo(file)),
-                                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                        onTap: () => _handleFileTap(file),
-                                        onLongPress: () => _showFileOptions(file),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                  ),
+              },
+            ),
+            
+            IconButton(
+              icon: Icon(_isSearching ? Icons.close : Icons.search),
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) {
+                    _searchController.clear();
+                  }
+                });
+              },
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_horiz),
+              onSelected: (String result) {
+                if (result == 'settings') {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                } else if (result == 'toggle_hidden') {
+                  setState(() {
+                    _showHidden = !_showHidden;
+                  });
+                  _loadFiles(_currentPath);
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'settings',
+                  child: Text('Settings'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'toggle_hidden',
+                  child: Text(_showHidden ? 'Stop showing hidden files' : 'Show hidden files'),
+                ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showCreateFolderDialog();
-        },
-        child: const Icon(Icons.add),
+          ],
+        ),
+        
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  
+                  
+                  
+                  
+                  
+                  // Storage selection dropdown
+                  if (_storagePaths.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(25.0),
+                              border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<Directory>(
+                                value: _selectedStoragePath,
+                                icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
+                                onChanged: (Directory? newValue) {
+                                  if (newValue != null) {
+                                    setState(() {
+                                      _selectedStoragePath = newValue;
+                                    });
+                                    _loadFiles(newValue.path);
+                                  }
+                                },
+                                items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                                  return DropdownMenuItem<Directory>(
+                                    value: dir,
+                                    child: Text(
+                                      dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _currentPath,
+                              style: const TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Expanded(
+                    child: ScrollConfiguration(
+                      behavior: const ScrollBehavior().copyWith(overscroll: false),
+                      child: _filteredFiles.isEmpty
+                          ? const Center(child: Text('No files or folders found.'))
+                          : _isGridView
+                              ? RefreshIndicator(
+                                  onRefresh: () => _loadFiles(_currentPath),
+                                  child: Scrollbar(
+                                    controller: _scrollController,
+                                    child: GridView.builder(
+                                      controller: _scrollController,
+                                      padding: const EdgeInsets.all(16.0),
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        crossAxisSpacing: 16.0,
+                                        mainAxisSpacing: 16.0,
+                                        childAspectRatio: 0.8,
+                                      ),
+                                      itemCount: _filteredFiles.length,
+                                      itemBuilder: (context, index) {
+                                        final file = _filteredFiles[index];
+                                        return GestureDetector(
+                                          onTap: () => _handleFileTap(file),
+                                          onLongPress: () => _showFileOptions(file),
+                                          child: Column(
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                    color: _getFolderColor(file.type),
+                                                    borderRadius: BorderRadius.circular(12.0),
+                                                  ),
+                                                  child: Icon(
+                                                    _fileTileIcon(file.type),
+                                                    size: 48.0,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                file.name,
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
+                                              if (file.type == FileType.directory)
+                                                DirectoryItemCount(file: file),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: () => _loadFiles(_currentPath),
+                                  child: Scrollbar(
+                                    controller: _scrollController,
+                                    child: ListView.builder(
+                                      controller: _scrollController,
+                                      itemCount: _filteredFiles.length,
+                                      itemBuilder: (context, index) {
+                                        final file = _filteredFiles[index];
+                                        return ListTile(
+                                          leading: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: _getFolderColor(file.type),
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
+                                            child: Icon(
+                                              _fileTileIcon(file.type),
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          title: Text(file.name),
+                                          subtitle: file.type == FileType.directory
+                                              ? DirectoryItemCount(file: file)
+                                              : Text(_getFileInfo(file)),
+                                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                          onTap: () => _handleFileTap(file),
+                                          onLongPress: () => _showFileOptions(file),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                    ),
+                  ),
+                ],
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _showCreateFolderDialog();
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
