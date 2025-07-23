@@ -14,6 +14,7 @@ class DirectoryItemCount extends StatefulWidget {
 
 class _DirectoryItemCountState extends State<DirectoryItemCount> {
   int? _itemCount;
+  static final Map<String, int> _itemCountCache = {};
 
   @override
   void initState() {
@@ -23,11 +24,20 @@ class _DirectoryItemCountState extends State<DirectoryItemCount> {
 
   Future<void> _getItemCount() async {
     if (widget.file.type == FileType.directory) {
-      final count = await compute(FileService().getDirectoryItemCount, widget.file.path);
-      if (mounted) {
-        setState(() {
-          _itemCount = count;
-        });
+      if (_itemCountCache.containsKey(widget.file.path)) {
+        if (mounted) {
+          setState(() {
+            _itemCount = _itemCountCache[widget.file.path];
+          });
+        }
+      } else {
+        final count = await compute(FileService().getDirectoryItemCount, widget.file.path);
+        if (mounted) {
+          setState(() {
+            _itemCount = count;
+            _itemCountCache[widget.file.path] = count;
+          });
+        }
       }
     }
   }
