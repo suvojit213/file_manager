@@ -559,60 +559,74 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   child: Scrollbar(
                                     controller: _scrollController,
                                     child: AnimationLimiter(
-                                    child: GridView.builder(
-                                      controller: _scrollController,
-                                      padding: const EdgeInsets.all(16.0),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 16.0,
-                                        mainAxisSpacing: 16.0,
-                                        childAspectRatio: 0.8,
-                                      ),
-                                      itemCount: _filteredFiles.length,
-                                      itemBuilder: (context, index) {
-                                        final file = _filteredFiles[index];
-                                        return AnimationConfiguration.staggeredGrid(
-                                          position: index,
-                                          duration: const Duration(milliseconds: 375),
-                                          columnCount: 3,
-                                          child: ScaleAnimation(
-                                            child: FadeInAnimation(
-                                              child: GestureDetector(
-                                                onTap: () => _handleFileTap(file),
-                                                onLongPress: () => _showFileOptions(file),
-                                                child: Column(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Container(
-                                                        width: double.infinity,
-                                                        decoration: BoxDecoration(
-                                                          color: _getFolderColor(file.type),
-                                                          borderRadius: BorderRadius.circular(12.0),
-                                                        ),
-                                                        child: Icon(
-                                                          _fileTileIcon(file.type),
-                                                          size: 48.0,
-                                                          color: Colors.white,
+                                      child: GridView.builder(
+                                        controller: _scrollController,
+                                        padding: const EdgeInsets.all(16.0),
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          crossAxisSpacing: 16.0,
+                                          mainAxisSpacing: 16.0,
+                                          childAspectRatio: 0.8,
+                                        ),
+                                        itemCount: _filteredFiles.length,
+                                        itemBuilder: (context, index) {
+                                          final file = _filteredFiles[index];
+                                          return AnimationConfiguration.staggeredGrid(
+                                            position: index,
+                                            duration:
+                                                const Duration(milliseconds: 375),
+                                            columnCount: 3,
+                                            child: ScaleAnimation(
+                                              child: FadeInAnimation(
+                                                child: GestureDetector(
+                                                  onTap: () =>
+                                                      _handleFileTap(file),
+                                                  onLongPress: () =>
+                                                      _showFileOptions(file),
+                                                  child: Column(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Container(
+                                                          width: double.infinity,
+                                                          decoration: BoxDecoration(
+                                                            color: _getFolderColor(
+                                                                file.type),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                    12.0),
+                                                          ),
+                                                          child: Icon(
+                                                            _fileTileIcon(
+                                                                file.type),
+                                                            size: 48.0,
+                                                            color: Colors.white,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      file.name,
-                                                      textAlign: TextAlign.center,
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: const TextStyle(fontSize: 12),
-                                                    ),
-                                                    if (file.type == FileType.directory)
-                                                      DirectoryItemCount(file: file),
-                                                  ],
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        file.name,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      if (file.type ==
+                                                          FileType.directory)
+                                                        DirectoryItemCount(
+                                                            file: file),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 )
@@ -622,13 +636,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     controller: _scrollController,
                                     child: AnimationLimiter(
                                       child: ListView.builder(
-                                      controller: _scrollController,
-                                      itemCount: _filteredFiles.length,
-                                      itemBuilder: (context, index) {
+                                        controller: _scrollController,
+                                        itemCount: _filteredFiles.length,
+                                        itemBuilder: (context, index) {
                                           final file = _filteredFiles[index];
-                                          return AnimationConfiguration.staggeredList(
+                                          return AnimationConfiguration
+                                              .staggeredList(
                                             position: index,
-                                            duration: const Duration(milliseconds: 375),
+                                            duration:
+                                                const Duration(milliseconds: 375),
                                             child: SlideAnimation(
                                               verticalOffset: 50.0,
                                               child: FadeInAnimation(
@@ -637,8 +653,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                     width: 40,
                                                     height: 40,
                                                     decoration: BoxDecoration(
-                                                      color: _getFolderColor(file.type),
-                                                      borderRadius: BorderRadius.circular(8.0),
+                                                      color: _getFolderColor(
+                                                          file.type),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
                                                     ),
                                                     child: Icon(
                                                       _fileTileIcon(file.type),
@@ -647,17 +666,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                     ),
                                                   ),
                                                   title: Text(file.name),
-                                                  subtitle: file.type == FileType.directory
-                                                      ? DirectoryItemCount(file: file)
+                                                  subtitle: file.type ==
+                                                          FileType.directory
+                                                      ? DirectoryItemCount(
+                                                          file: file)
                                                       : Text(_getFileInfo(file)),
-                                                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                                  onTap: () => _handleFileTap(file),
-                                                  onLongPress: () => _showFileOptions(file),
+                                                  trailing: const Icon(
+                                                      Icons.arrow_forward_ios,
+                                                      size: 16),
+                                                  onTap: () =>
+                                                      _handleFileTap(file),
+                                                  onLongPress: () =>
+                                                      _showFileOptions(file),
                                                 ),
                                               ),
                                             ),
                                           );
                                         },
+                                      ),
                                     ),
                                   ),
                                 ),
