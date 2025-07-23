@@ -162,19 +162,85 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
         }
       });
 
-      // Clear cache and rebuild for new directory
-      _cachedTiles.clear();
+      // Calculate differences and update AnimatedList
+      final oldFiles = List<FileModel>.from(_filteredFiles);
+      final newFiles = files;
 
       setState(() {
-        _files = files;
-        _filteredFiles = files;
+        _files = newFiles;
+        _filteredFiles = newFiles;
         _isLoading = false;
       });
+
+      // Animate list changes
+      _updateAnimatedList(oldFiles, newFiles);
+
     } catch (e) {
       // Handle errors, e.g., permission denied
       final parent = Directory(path).parent.path;
       await _loadFiles(parent);
     }
+  }
+
+  void _updateAnimatedList(List<FileModel> oldList, List<FileModel> newList) {
+    final oldSet = oldList.map((e) => e.path).toSet();
+    final newSet = newList.map((e) => e.path).toSet();
+
+    // Remove items that are no longer in the list
+    for (int i = oldList.length - 1; i >= 0; i--) {
+      final file = oldList[i];
+      if (!newSet.contains(file.path)) {
+        _listKey.currentState?.removeItem(
+          i,
+          (context, animation) => SizeTransition(
+            sizeFactor: animation,
+            child: FadeTransition(
+              opacity: animation,
+              child: _cachedTiles[file.path] ?? Container(), // Use cached tile or empty container
+            ),
+          ),
+          duration: const Duration(milliseconds: 300),
+        );
+        _cachedTiles.remove(file.path);
+      }
+    }
+
+    // Add new items and update existing ones
+    for (int i = 0; i < newList.length; i++) {
+      final file = newList[i];
+      if (!oldSet.contains(file.path)) {
+        _listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 300));
+      } else {
+        // If item exists, ensure its tile is updated if necessary
+        // This might involve re-adding it to the cache or triggering a rebuild
+        _cachedTiles[file.path] = _buildFileTile(file); // Re-cache the tile
+      }
+    }
+  }
+
+  Widget _buildFileTile(FileModel file) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: _getFolderColor(file.type),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Icon(
+          _fileTileIcon(file.type),
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+      title: Text(file.name),
+      subtitle: file.type == FileType.directory
+          ? DirectoryItemCount(file: file)
+          : Text(_getFileInfo(file)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: () => _handleFileTap(file),
+      onLongPress: () => _showFileOptions(file),
+    );
   }
 
   // Dialogs for file operations
@@ -667,37 +733,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             sizeFactor: animation,
                                             child: FadeTransition(
                                               opacity: animation,
-                                              child: _cachedTiles.putIfAbsent(file.path, () => ListTile(
-                                                leading: Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: _getFolderColor(
-                                                        file.type),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                  ),
-                                                  child: Icon(
-                                                    _fileTileIcon(file.type),
-                                                    color: Colors.white,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                                title: Text(file.name),
-                                                subtitle: file.type ==
-                                                        FileType.directory
-                                                    ? DirectoryItemCount(
-                                                        file: file)
-                                                    : Text(_getFileInfo(file)),
-                                                trailing: const Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    size: 16),
-                                                onTap: () =>
-                                                    _handleFileTap(file),
-                                                onLongPress: () =>
-                                                    _showFileOptions(file),
-                                              )),
+                                              child: _cachedTiles.putIfAbsent(file.path, () => _buildFileTile(file)),
                                             ),
                                           );
                                         },
