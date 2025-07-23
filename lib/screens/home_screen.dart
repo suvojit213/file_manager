@@ -416,15 +416,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               });
             },
           ),
-          IconButton(
-            icon: Icon(_showHidden ? Icons.visibility_off : Icons.visibility),
-            onPressed: () {
-              setState(() {
-                _showHidden = !_showHidden;
-              });
-              _loadFiles(_currentPath);
-            },
-          ),
+          
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
             onPressed: () {
