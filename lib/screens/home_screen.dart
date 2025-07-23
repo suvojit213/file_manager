@@ -649,12 +649,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                             child: SlideAnimation(
                                               verticalOffset: 50.0,
                                               child: FadeInAnimation(
-                                                child: const ListTile(
-                                                  leading: CircleAvatar(
-                                                    child: Icon(Icons.folder),
+                                                child: ListTile(
+                                                  leading: Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: _getFolderColor(
+                                                          file.type),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                    ),
+                                                    child: Icon(
+                                                      _fileTileIcon(file.type),
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    ),
                                                   ),
-                                                  title: Text('some file'),
-                                                  subtitle: Text('some date'),
+                                                  title: Text(file.name),
+                                                  subtitle: file.type ==
+                                                          FileType.directory
+                                                      ? DirectoryItemCount(
+                                                          file: file)
+                                                      : Text(_getFileInfo(file)),
+                                                  trailing: const Icon(
+                                                      Icons.arrow_forward_ios,
+                                                      size: 16),
+                                                  onTap: () =>
+                                                      _handleFileTap(file),
+                                                  onLongPress: () =>
+                                                      _showFileOptions(file),
                                                 ),
                                               ),
                                             ),
