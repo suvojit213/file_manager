@@ -117,16 +117,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _loadFiles(String path) async {
-    setState(() {
-      _isLoading = true;
-      _currentPath = path;
-    });
-    final files = await _fileService.listFiles(path, showHidden: _showHidden);
-    setState(() {
-      _files = files;
-      _filteredFiles = files; // Initialize filtered files with all files
-      _isLoading = false;
-    });
+    try {
+      if (!Directory(path).existsSync()) {
+        // If the directory doesn't exist, navigate to the parent directory
+        final parent = Directory(path).parent.path;
+        await _loadFiles(parent);
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+        _currentPath = path;
+      });
+
+      final files = await _fileService.listFiles(path, showHidden: _showHidden);
+      files.sort((a, b) {
+        if (a.type == b.type) {
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        } else if (a.type == FileType.directory) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
+
+      setState(() {
+        _files = files;
+        _filteredFiles = files;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle errors, e.g., permission denied
+      final parent = Directory(path).parent.path;
+      await _loadFiles(parent);
+    }
   }
 
   // Dialogs for file operations
@@ -390,6 +414,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (_currentPath.isNotEmpty && _currentPath != _selectedStoragePath?.path) {
+          final parent = Directory(_currentPath).parent.path;
+          _loadFiles(parent);
+          return false; // Prevent default back navigation
+        } else {
+          return true; // Allow default back navigation (exit app)
+        }
+      },
     return Scaffold(
       appBar: AppBar(
         title: _isSearching
@@ -513,97 +547,99 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                 Expanded(
-                  child: _filteredFiles.isEmpty
-                      ? const Center(child: Text('No files or folders found.'))
-                      : _isGridView
-                          ? RefreshIndicator(
-                              onRefresh: () => _loadFiles(_currentPath),
-                              child: Scrollbar(
-                                controller: _scrollController,
-                                child: GridView.builder(
+                  child: ScrollConfiguration(
+                    behavior: const ScrollBehavior().copyWith(overscroll: false),
+                    child: _filteredFiles.isEmpty
+                        ? const Center(child: Text('No files or folders found.'))
+                        : _isGridView
+                            ? RefreshIndicator(
+                                onRefresh: () => _loadFiles(_currentPath),
+                                child: Scrollbar(
                                   controller: _scrollController,
-                                  padding: const EdgeInsets.all(16.0),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 16.0,
-                                    mainAxisSpacing: 16.0,
-                                    childAspectRatio: 0.8,
-                                  ),
-                                  itemCount: _filteredFiles.length,
-                                  itemBuilder: (context, index) {
-                                    final file = _filteredFiles[index];
-                                    return GestureDetector(
-                                      onTap: () => _handleFileTap(file),
-                                      onLongPress: () => _showFileOptions(file),
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: _getFolderColor(file.type),
-                                                borderRadius: BorderRadius.circular(12.0),
-                                              ),
-                                              child: Icon(
-                                                _fileTileIcon(file.type),
-                                                size: 48.0,
-                                                color: Colors.white,
+                                  child: GridView.builder(
+                                    controller: _scrollController,
+                                    padding: const EdgeInsets.all(16.0),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 16.0,
+                                      mainAxisSpacing: 16.0,
+                                      childAspectRatio: 0.8,
+                                    ),
+                                    itemCount: _filteredFiles.length,
+                                    itemBuilder: (context, index) {
+                                      final file = _filteredFiles[index];
+                                      return GestureDetector(
+                                        onTap: () => _handleFileTap(file),
+                                        onLongPress: () => _showFileOptions(file),
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: _getFolderColor(file.type),
+                                                  borderRadius: BorderRadius.circular(12.0),
+                                                ),
+                                                child: Icon(
+                                                  _fileTileIcon(file.type),
+                                                  size: 48.0,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            file.name,
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 12),
-                                          ),
-                                          if (file.type == FileType.directory)
-                                            DirectoryItemCount(file: file),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              file.name,
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                            if (file.type == FileType.directory)
+                                              DirectoryItemCount(file: file),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                            )
-                          : RefreshIndicator(
-                              onRefresh: () => _loadFiles(_currentPath),
-                              child: Scrollbar(
-                                controller: _scrollController,
-                                child: ListView.builder(
+                              )
+                            : RefreshIndicator(
+                                onRefresh: () => _loadFiles(_currentPath),
+                                child: Scrollbar(
                                   controller: _scrollController,
-                                  itemCount: _filteredFiles.length,
-                                  itemBuilder: (context, index) {
-                                    final file = _filteredFiles[index];
-                                    return ListTile(
-                                      leading: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: _getFolderColor(file.type),
-                                          borderRadius: BorderRadius.circular(8.0),
+                                  child: ListView.builder(
+                                    controller: _scrollController,
+                                    itemCount: _filteredFiles.length,
+                                    itemBuilder: (context, index) {
+                                      final file = _filteredFiles[index];
+                                      return ListTile(
+                                        leading: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: _getFolderColor(file.type),
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: Icon(
+                                            _fileTileIcon(file.type),
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
                                         ),
-                                        child: Icon(
-                                          _fileTileIcon(file.type),
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      title: Text(file.name),
-                                      subtitle: file.type == FileType.directory
-                                          ? DirectoryItemCount(file: file)
-                                          : Text(_getFileInfo(file)),
-                                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                      onTap: () => _handleFileTap(file),
-                                      onLongPress: () => _showFileOptions(file),
-                                    );
-                                  },
+                                        title: Text(file.name),
+                                        subtitle: file.type == FileType.directory
+                                            ? DirectoryItemCount(file: file)
+                                            : Text(_getFileInfo(file)),
+                                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                        onTap: () => _handleFileTap(file),
+                                        onLongPress: () => _showFileOptions(file),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                ),
+                  ),
               ],
             ),
       floatingActionButton: FloatingActionButton(
