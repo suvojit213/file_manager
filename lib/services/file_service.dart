@@ -27,6 +27,24 @@ Future<int> _getDirectoryItemCountIsolate(String path) async {
   return count;
 }
 
+// Top-level function for Isolate to list files recursively
+Future<List<FileModel>> _listAllFilesRecursiveIsolate(String path) async {
+  List<FileModel> fileList = [];
+  try {
+    final directory = Directory(path);
+    if (await directory.exists()) {
+      await for (var entity in directory.list(recursive: true, followLinks: false)) {
+        if (entity is File) {
+          fileList.add(FileModel.fromFileSystemEntity(entity));
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint('Error listing files recursively in isolate: $e');
+  }
+  return fileList;
+}
+
 class FileService {
   // Request storage permissions
   static const platform = MethodChannel('com.example.flutter_file_manager/permissions');
@@ -196,8 +214,7 @@ class FileService {
   // Find large files (simplified)
   Future<List<FileModel>> findLargeFiles(String path, {int minSizeKB = 1024}) async {
     List<FileModel> largeFiles = [];
-    List<FileModel> allFiles = [];
-    await listAllFilesRecursive(path, allFiles);
+    List<FileModel> allFiles = await compute(_listAllFilesRecursiveIsolate, path);
 
     for (var file in allFiles) {
       if (file.type == FileType.file && file.size >= minSizeKB * 1024) {
@@ -209,21 +226,13 @@ class FileService {
   }
 
   // Helper for recursive listing (used by findLargeFiles and CategoryScreen)
+  // This method is now replaced by _listAllFilesRecursiveIsolate for performance
   Future<void> listAllFilesRecursive(String path, List<FileModel> fileList) async {
-    try {
-      final directory = Directory(path);
-      if (await directory.exists()) {
-        await for (var entity in directory.list(recursive: false, followLinks: false)) {
-          if (entity is File) {
-            fileList.add(FileModel.fromFileSystemEntity(entity));
-          } else if (entity is Directory) {
-            await listAllFilesRecursive(entity.path, fileList);
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error listing files recursively: $e');
-    }
+    // This method is no longer used directly, as recursive listing is now handled by isolates.
+    // It's kept for compatibility if other parts of the code still call it, but its implementation
+    // should ideally be replaced with calls to _listAllFilesRecursiveIsolate.
+    debugPrint('Warning: listAllFilesRecursive is deprecated. Use _listAllFilesRecursiveIsolate via compute for better performance.');
+    fileList.addAll(await compute(_listAllFilesRecursiveIsolate, path));
   }
 
   Future<String> readFileAsString(String path) async {
@@ -313,26 +322,12 @@ class FileService {
   }
 
   static Future<List<FileModel>> listAllFilesRecursiveStatic(String path) async {
-    List<FileModel> fileList = [];
-    try {
-      final directory = Directory(path);
-      if (await directory.exists()) {
-        await for (var entity in directory.list(recursive: true, followLinks: false)) {
-          if (entity is File) {
-            fileList.add(FileModel.fromFileSystemEntity(entity));
-          } else if (entity is Directory) {
-            // Recursively add files from subdirectories
-            fileList.addAll(await listAllFilesRecursiveStatic(entity.path));
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error listing files recursively in isolate: $e');
-    }
-    return fileList;
+    // This method is now replaced by _listAllFilesRecursiveIsolate for performance
+    return compute(_listAllFilesRecursiveIsolate, path);
   }
 
   Future<int> getDirectoryItemCount(String path) async {
     return compute(_getDirectoryItemCountIsolate, path);
   }
 }
+

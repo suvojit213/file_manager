@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   final FileService _fileService = FileService();
   List<FileModel> _files = [];
   List<FileModel> _filteredFiles = [];
@@ -35,11 +35,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Directory? _selectedStoragePath;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  
+  // Performance optimizations
+  late AnimationController _animationController;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  final Map<String, Widget> _cachedTiles = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Initialize animation controller for smooth animations
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    
     if (widget.initialPath != null) {
       _currentPath = widget.initialPath!;
       _loadFiles(_currentPath);
@@ -47,6 +59,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _requestPermissionsAndLoadFiles();
     }
     _searchController.addListener(_onSearchChanged);
+
+    // Initialize animation controller for smooth animations
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
   }
 
   @override
@@ -55,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -142,6 +161,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           return 1;
         }
       });
+
+      // Clear cache and rebuild for new directory
+      _cachedTiles.clear();
 
       setState(() {
         _files = files;
@@ -635,52 +657,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   child: Scrollbar(
                                     controller: _scrollController,
                                     child: AnimationLimiter(
-                                      child: ListView.builder(
+                                      child: AnimatedList(
+                                        key: _listKey,
                                         controller: _scrollController,
-                                        itemCount: _filteredFiles.length,
-                                        itemExtent: 72.0, // Add this line
-                                        itemBuilder: (context, index) {
+                                        initialItemCount: _filteredFiles.length,
+                                        itemBuilder: (context, index, animation) {
                                           final file = _filteredFiles[index];
-                                          return AnimationConfiguration
-                                              .staggeredList(
-                                            position: index,
-                                            duration:
-                                                const Duration(milliseconds: 375),
-                                            child: SlideAnimation(
-                                              verticalOffset: 50.0,
-                                              child: FadeInAnimation(
-                                                child: ListTile(
-                                                  leading: Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: _getFolderColor(
-                                                          file.type),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.0),
-                                                    ),
-                                                    child: Icon(
-                                                      _fileTileIcon(file.type),
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    ),
+                                          return SizeTransition(
+                                            sizeFactor: animation,
+                                            child: FadeTransition(
+                                              opacity: animation,
+                                              child: _cachedTiles.putIfAbsent(file.path, () => ListTile(
+                                                leading: Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  decoration: BoxDecoration(
+                                                    color: _getFolderColor(
+                                                        file.type),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
                                                   ),
-                                                  title: Text(file.name),
-                                                  subtitle: file.type ==
-                                                          FileType.directory
-                                                      ? DirectoryItemCount(
-                                                          file: file)
-                                                      : Text(_getFileInfo(file)),
-                                                  trailing: const Icon(
-                                                      Icons.arrow_forward_ios,
-                                                      size: 16),
-                                                  onTap: () =>
-                                                      _handleFileTap(file),
-                                                  onLongPress: () =>
-                                                      _showFileOptions(file),
+                                                  child: Icon(
+                                                    _fileTileIcon(file.type),
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
                                                 ),
-                                              ),
+                                                title: Text(file.name),
+                                                subtitle: file.type ==
+                                                        FileType.directory
+                                                    ? DirectoryItemCount(
+                                                        file: file)
+                                                    : Text(_getFileInfo(file)),
+                                                trailing: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 16),
+                                                onTap: () =>
+                                                    _handleFileTap(file),
+                                                onLongPress: () =>
+                                                    _showFileOptions(file),
+                                              )),
                                             ),
                                           );
                                         },

@@ -5,14 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle // Added
+import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.view.Display // Added
-import android.view.WindowManager // Added
+import android.view.Display
+import android.view.WindowManager
+import android.view.View
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -29,7 +33,13 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // Optimize for performance
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Set highest refresh rate for smooth scrolling
             val display = display
             if (display != null) {
                 val modes = display.supportedModes
@@ -45,6 +55,18 @@ class MainActivity : FlutterActivity() {
                     window.attributes = layoutParams
                 }
             }
+        }
+        
+        // Enable hardware acceleration
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
+        
+        // Optimize for smooth scrolling
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
         }
     }
 
