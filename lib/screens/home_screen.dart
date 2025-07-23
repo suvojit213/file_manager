@@ -436,11 +436,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               });
             },
           ),
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_horiz),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+            onSelected: (String result) {
+              if (result == 'settings') {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+              } else if (result == 'toggle_hidden') {
+                setState(() {
+                  _showHidden = !_showHidden;
+                });
+                _loadFiles(_currentPath);
+              }
             },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: const Text('Settings'),
+              ),
+              PopupMenuItem<String>(
+                value: 'toggle_hidden',
+                child: Text(_showHidden ? 'Stop showing hidden files' : 'Show hidden files'),
+              ),
+            ],
           ),
         ],
       ),
