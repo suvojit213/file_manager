@@ -11,6 +11,8 @@ import 'package:flutter_file_manager/screens/text_editor_screen.dart';
 import 'package:flutter_file_manager/screens/image_viewer_screen.dart';
 import 'package:flutter_file_manager/widgets/directory_item_count.dart';
 import 'package:flutter_file_manager/screens/settings_screen.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? initialPath;
@@ -556,6 +558,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   onRefresh: () => _loadFiles(_currentPath),
                                   child: Scrollbar(
                                     controller: _scrollController,
+                                    child: AnimationLimiter(
                                     child: GridView.builder(
                                       controller: _scrollController,
                                       padding: const EdgeInsets.all(16.0),
@@ -568,36 +571,45 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       itemCount: _filteredFiles.length,
                                       itemBuilder: (context, index) {
                                         final file = _filteredFiles[index];
-                                        return GestureDetector(
-                                          onTap: () => _handleFileTap(file),
-                                          onLongPress: () => _showFileOptions(file),
-                                          child: Column(
-                                            children: [
-                                              Expanded(
-                                                child: Container(
-                                                  width: double.infinity,
-                                                  decoration: BoxDecoration(
-                                                    color: _getFolderColor(file.type),
-                                                    borderRadius: BorderRadius.circular(12.0),
-                                                  ),
-                                                  child: Icon(
-                                                    _fileTileIcon(file.type),
-                                                    size: 48.0,
-                                                    color: Colors.white,
-                                                  ),
+                                        return AnimationConfiguration.staggeredGrid(
+                                          position: index,
+                                          duration: const Duration(milliseconds: 375),
+                                          columnCount: 3,
+                                          child: ScaleAnimation(
+                                            child: FadeInAnimation(
+                                              child: GestureDetector(
+                                                onTap: () => _handleFileTap(file),
+                                                onLongPress: () => _showFileOptions(file),
+                                                child: Column(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Container(
+                                                        width: double.infinity,
+                                                        decoration: BoxDecoration(
+                                                          color: _getFolderColor(file.type),
+                                                          borderRadius: BorderRadius.circular(12.0),
+                                                        ),
+                                                        child: Icon(
+                                                          _fileTileIcon(file.type),
+                                                          size: 48.0,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      file.name,
+                                                      textAlign: TextAlign.center,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: const TextStyle(fontSize: 12),
+                                                    ),
+                                                    if (file.type == FileType.directory)
+                                                      DirectoryItemCount(file: file),
+                                                  ],
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                file.name,
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(fontSize: 12),
-                                              ),
-                                              if (file.type == FileType.directory)
-                                                DirectoryItemCount(file: file),
-                                            ],
+                                            ),
                                           ),
                                         );
                                       },
@@ -608,34 +620,44 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   onRefresh: () => _loadFiles(_currentPath),
                                   child: Scrollbar(
                                     controller: _scrollController,
-                                    child: ListView.builder(
+                                    child: AnimationLimiter(
+                                      child: ListView.builder(
                                       controller: _scrollController,
                                       itemCount: _filteredFiles.length,
                                       itemBuilder: (context, index) {
-                                        final file = _filteredFiles[index];
-                                        return ListTile(
-                                          leading: Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color: _getFolderColor(file.type),
-                                              borderRadius: BorderRadius.circular(8.0),
+                                          final file = _filteredFiles[index];
+                                          return AnimationConfiguration.staggeredList(
+                                            position: index,
+                                            duration: const Duration(milliseconds: 375),
+                                            child: SlideAnimation(
+                                              verticalOffset: 50.0,
+                                              child: FadeInAnimation(
+                                                child: ListTile(
+                                                  leading: Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: _getFolderColor(file.type),
+                                                      borderRadius: BorderRadius.circular(8.0),
+                                                    ),
+                                                    child: Icon(
+                                                      _fileTileIcon(file.type),
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                  title: Text(file.name),
+                                                  subtitle: file.type == FileType.directory
+                                                      ? DirectoryItemCount(file: file)
+                                                      : Text(_getFileInfo(file)),
+                                                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                                  onTap: () => _handleFileTap(file),
+                                                  onLongPress: () => _showFileOptions(file),
+                                                ),
+                                              ),
                                             ),
-                                            child: Icon(
-                                              _fileTileIcon(file.type),
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          title: Text(file.name),
-                                          subtitle: file.type == FileType.directory
-                                              ? DirectoryItemCount(file: file)
-                                              : Text(_getFileInfo(file)),
-                                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                          onTap: () => _handleFileTap(file),
-                                          onLongPress: () => _showFileOptions(file),
-                                        );
-                                      },
+                                          );
+                                        },
                                     ),
                                   ),
                                 ),
