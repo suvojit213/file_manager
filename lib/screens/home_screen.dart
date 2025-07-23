@@ -10,6 +10,7 @@ import 'package:flutter_file_manager/screens/file_details_screen.dart';
 import 'package:flutter_file_manager/screens/text_editor_screen.dart';
 import 'package:flutter_file_manager/screens/image_viewer_screen.dart';
 import 'package:flutter_file_manager/widgets/directory_item_count.dart';
+import 'package:flutter_file_manager/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? initialPath;
