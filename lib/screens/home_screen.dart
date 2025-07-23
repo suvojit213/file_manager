@@ -467,38 +467,49 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 if (_storagePaths.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(25.0),
-                        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<Directory>(
-                          isExpanded: true,
-                          value: _selectedStoragePath,
-                          icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
-                          onChanged: (Directory? newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                _selectedStoragePath = newValue;
-                              });
-                              _loadFiles(newValue.path);
-                            }
-                          },
-                          items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
-                            return DropdownMenuItem<Directory>(
-                              value: dir,
-                              child: Text(
-                                dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(25.0),
+                            border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<Directory>(
+                              value: _selectedStoragePath,
+                              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
+                              onChanged: (Directory? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _selectedStoragePath = newValue;
+                                  });
+                                  _loadFiles(newValue.path);
+                                }
+                              },
+                              items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                                return DropdownMenuItem<Directory>(
+                                  value: dir,
+                                  child: Text(
+                                    dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _currentPath,
+                            style: const TextStyle(fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 Expanded(
