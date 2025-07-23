@@ -56,7 +56,14 @@ class ThemeNotifier with ChangeNotifier {
 class AppThemes {
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primarySwatch: Colors.blue,
+    colorScheme: const ColorScheme.light(
+      primary: Colors.blue,
+      onPrimary: Colors.white,
+      secondary: Colors.cyan,
+      onSecondary: Colors.black,
+      surface: Colors.white,
+      onSurface: Colors.black,
+    ),
     scaffoldBackgroundColor: Colors.white,
     cardColor: Colors.white,
     appBarTheme: const AppBarTheme(
@@ -83,7 +90,14 @@ class AppThemes {
 
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.blue,
+    colorScheme: const ColorScheme.dark(
+      primary: Colors.blue,
+      onPrimary: Colors.white,
+      secondary: Colors.cyan,
+      onSecondary: Colors.black,
+      surface: Colors.grey,
+      onSurface: Colors.white,
+    ),
     scaffoldBackgroundColor: Colors.black,
     cardColor: Colors.grey[900],
     appBarTheme: const AppBarTheme(
@@ -110,7 +124,14 @@ class AppThemes {
 
   static final ThemeData amoledBlackTheme = ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.blue,
+    colorScheme: const ColorScheme.dark(
+      primary: Colors.blue,
+      onPrimary: Colors.white,
+      secondary: Colors.cyan,
+      onSecondary: Colors.black,
+      surface: Colors.black,
+      onSurface: Colors.white,
+    ),
     scaffoldBackgroundColor: Colors.black,
     cardColor: Colors.grey[900],
     appBarTheme: const AppBarTheme(
