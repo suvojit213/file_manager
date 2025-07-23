@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _isSearching = false;
   bool _isGridView = false; // New state for grid/list view
   List<Directory> _storagePaths = []; // New state for storing available storage paths
+  Directory? _selectedStoragePath;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -66,9 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _filterFiles(_searchController.text);
   }
 
-  void _onStoragePathSelected(String path) {
-    _loadFiles(path);
-  }
+  
 
   void _filterFiles(String query) {
     if (query.isEmpty) {
@@ -95,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (_currentPath.isEmpty) { // Only set if not already set by initialPath
             _currentPath = paths.first.path;
           }
+          _selectedStoragePath = paths.first;
         });
         _loadFiles(_currentPath);
       } else {
@@ -463,7 +463,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 
                 
                 
-                // File list/grid
+                // Storage selection dropdown
+                if (_storagePaths.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: DropdownButton<Directory>(
+                      isExpanded: true,
+                      value: _selectedStoragePath,
+                      onChanged: (Directory? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedStoragePath = newValue;
+                          });
+                          _loadFiles(newValue.path);
+                        }
+                      },
+                      items: _storagePaths.map<DropdownMenuItem<Directory>>((Directory dir) {
+                        return DropdownMenuItem<Directory>(
+                          value: dir,
+                          child: Text(dir.path.split('/').last.isEmpty ? "Internal Storage" : dir.path.split('/').last),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 Expanded(
                   child: _filteredFiles.isEmpty
                       ? const Center(child: Text('No files or folders found.'))
