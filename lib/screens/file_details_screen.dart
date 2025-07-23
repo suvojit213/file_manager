@@ -47,6 +47,7 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: FutureBuilder<int>(
         future: _fileSizeFuture,
         builder: (context, snapshot) {

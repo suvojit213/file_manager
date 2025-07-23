@@ -310,6 +310,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void _showFileOptions(FileModel file) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (BuildContext context) {
         return SafeArea(
           child: Column(
@@ -470,9 +471,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(25.0),
-                        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<Directory>(
